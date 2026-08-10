@@ -553,8 +553,8 @@ async fn create_fake_codex() -> FakeCodex {
     executable.to_string(),
     fake_codex_script(),
     create_mode=CreateOrTruncate,
-    permission=0o755,
   )
+  @fs.chmod(executable.to_string(), 0o755)
   { root, executable, record_directory }
 }
 
