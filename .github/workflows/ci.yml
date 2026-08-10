@@ -10,6 +10,10 @@ permissions:
 
 jobs:
   check:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [native, wasm]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -20,6 +24,7 @@ jobs:
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
           moon update
           moon info
-          moon check
-          moon test --jobs 1 --no-parallelize
+          moon check --target "${{ matrix.target }}"
+          moon test --target "${{ matrix.target }}" --jobs 1 --no-parallelize
+          moon build --target "${{ matrix.target }}"
           moon package --list
