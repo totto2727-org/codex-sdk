@@ -179,7 +179,7 @@ async fn CodexExec::run(
   // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L177-L179
   let inherit_environment = self.env_override is None
 
-  let result = @agent_cli.run_with_backend(
+  let result = @agent_cli.run(
     @agent_cli.Invocation::new(
       command=self.executable_path.to_string(),
       arguments=command_args,
@@ -187,7 +187,6 @@ async fn CodexExec::run(
       inherit_environment~,
       input=args.input,
     ),
-    @agent_cli_native.backend(),
     on_event,
   ) catch {
     @agent_cli.AgentCliError::InvalidJson(line~, cause~) =>
