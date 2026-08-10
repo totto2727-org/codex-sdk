@@ -77,9 +77,9 @@ let turn = thread.run(
 
 The public event, item, option, thread, and turn models follow the official TypeScript SDK. MoonBit paths use `moonbitlang/x/path.Path`, task cancellation replaces `AbortSignal`, and streaming uses an async callback because the pinned MoonBit async runtime does not expose an async-generator type. Node's optional-package binary lookup is replaced by `PATH` lookup because a MoonBit package has no Node module-resolution context.
 
-## Agent core 連携
+## Agent core integration
 
-Provider は、マージ済み commit [`5bb57e3bb9bd5eeef2dc137f3899c13d115dc264`](https://github.com/totto2727-org/agent-core-sdk/commit/5bb57e3bb9bd5eeef2dc137f3899c13d115dc264) の単一 package `totto2727/agent-core-sdk/cli` に直接依存します。`CodexExec` は Codex 固有の引数構築とイベント変換を担当し、`agent_core_sdk/cli.run` は native JSONL process lifecycle を担当します。target 固有の `cli/native` package や backend は使用しません。
+The provider depends directly on the single `totto2727/agent-core-sdk/cli` package from merged commit [`5bb57e3bb9bd5eeef2dc137f3899c13d115dc264`](https://github.com/totto2727-org/agent-core-sdk/commit/5bb57e3bb9bd5eeef2dc137f3899c13d115dc264). `CodexExec` owns Codex-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the native JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
 
 ```mermaid
 flowchart LR
@@ -120,7 +120,7 @@ moon test --target native src/cli/test
 
 The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-for-one against a native fake Codex executable that records arguments, environment variables, stdin, schemas, JSONL events, process exits, and cancellation. Another 26 cases cover the explicit MoonBit item and event decoders, including every discriminated union branch, malformed payloads, unknown variants, and invalid JSONL. The Node-only optional-package layout cases are represented by documented MoonBit-runtime substitutions for an explicit executable override, `PATH` executable fallback, exact caller-provided `PATH`, and preservation of the Windows `Path` key.
 
-## テスト条件
+## Test conditions
 
 ```mermaid
 flowchart TD
