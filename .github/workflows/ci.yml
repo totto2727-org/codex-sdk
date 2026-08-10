@@ -21,5 +21,5 @@ jobs:
           moon update
           moon info
           moon check
-          moon test --no-parallelize
+          moon test --jobs 1 --no-parallelize
           moon package --list
