@@ -1,27 +1,27 @@
-name = "username/project"
+name = "totto2727/codex-sdk"
 
-version = "0.1.0"
+version = "0.2.0"
 
 readme = "README.mbt.md"
 
-repository = "https://github.com/username/project"
+repository = "https://github.com/totto2727-org/codex-sdk"
 
 license = "MIT"
 
-keywords = [ "moonbit", "library" ]
+keywords = [ "openai", "codex", "sdk", "moonbit" ]
 
-description = "A simple MoonBit library"
+description = "MoonBit SDK for embedding the Codex agent in workflows and applications"
 
-// Leave both settings unset for synchronous, backend-neutral libraries.
-//
-// For async libraries, uncomment supported_targets and exactly one
-// preferred_target. Choose the first viable preferred target in this order:
-// wasm, js, native. If a dependency supports fewer targets, narrow both
-// settings to match that dependency.
-//
-// supported_targets = "+native+js+wasm"
-// preferred_target = "wasm"
-// preferred_target = "js"
-// preferred_target = "native"
+preferred_target = "wasm"
+
+supported_targets = "+wasm+native"
+
+import {
+  "moonbitlang/x@0.4.47",
+  "moonbitlang/async@0.20.3",
+  "totto2727/agent-core-sdk@0.1.0",
+  "totto2727/copy@0.2.0",
+  "totto2727/lens@0.4.0",
+}
 
 source = "./src"
