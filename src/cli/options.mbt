@@ -6,20 +6,20 @@
 
 ///|
 /// Type difference: MoonBit requires an explicit recursive enum in place of the TypeScript union.
-pub(all) enum CodexConfigValue {
+pub(all) enum ConfigValue {
   ConfigString(String)
   ConfigInt(Int)
   ConfigDouble(Double)
   ConfigBool(Bool)
-  ConfigArray(Array[CodexConfigValue])
-  ConfigObject(Map[String, CodexConfigValue])
+  ConfigArray(Array[ConfigValue])
+  ConfigObject(Map[String, ConfigValue])
 } derive(Debug, Eq)
 
 ///| A JSON-shaped object whose values are serialized as TOML CLI overrides.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L3
-pub type CodexConfigObject = Map[String, CodexConfigValue]
+pub type ConfigObject = Map[String, ConfigValue]
 
 ///| Options shared by every thread created from a Codex client.
 
@@ -27,26 +27,26 @@ pub type CodexConfigObject = Map[String, CodexConfigValue]
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
-pub struct CodexOptions {
-  codex_path_override : @path.Path?
+pub struct Options {
+  executable_path_override : @path.Path?
   base_url : String?
   api_key : String?
-  config : CodexConfigObject?
+  config : ConfigObject?
   env : Map[String, String]?
 } derive(Eq)
 
-///| Constructs the same optional CodexOptions fields as the upstream object type.
+///| Constructs the same optional Options fields as the upstream object type.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L5-L22
 
 ///|
 /// Type difference: MoonBit structs require a constructor to provide the upstream empty-object defaults.
-pub fn CodexOptions::CodexOptions(
-  codex_path_override? : @path.Path,
+pub fn Options::Options(
+  executable_path_override? : @path.Path,
   base_url? : String,
   api_key? : String,
-  config? : CodexConfigObject,
+  config? : ConfigObject,
   env? : Map[String, String],
-) -> CodexOptions {
-  { codex_path_override, base_url, api_key, config, env }
+) -> Options {
+  { executable_path_override, base_url, api_key, config, env }
 }

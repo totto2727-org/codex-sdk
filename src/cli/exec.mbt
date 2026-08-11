@@ -1,13 +1,13 @@
 // Direct port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts
 // allow: SIZE_OK — this file intentionally preserves the upstream exec.ts responsibility boundary.
 
-///| Mirrors CodexExecArgs from the upstream implementation.
+///| Mirrors ExecArgs from the upstream implementation.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L10-L41
 
 ///|
 /// MoonBit uses Path for filesystem values and task cancellation instead of an AbortSignal field.
-priv struct CodexExecArgs {
+priv struct ExecArgs {
   input : String
   base_url : String?
   api_key : String?
@@ -46,10 +46,10 @@ const MOONBIT_SDK_ORIGINATOR : String = "codex_sdk_mbt"
 
 ///|
 /// Upstream path type and bundled-directory resolution: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L58-L65 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L412-L430
-struct CodexExec {
+struct Exec {
   executable_path : @path.Path
   env_override : Map[String, String]?
-  config_overrides : CodexConfigObject?
+  config_overrides : ConfigObject?
 }
 
 ///| Constructs the process adapter used by a Codex client.
@@ -58,11 +58,11 @@ struct CodexExec {
 
 ///|
 /// Runtime difference: MoonBit packages have no Node optional-package resolution context, so an omitted override resolves `codex` through PATH.
-fn CodexExec::CodexExec(
+fn Exec::Exec(
   executable_path : @path.Path?,
   env : Map[String, String]?,
-  config_overrides : CodexConfigObject?,
-) -> CodexExec {
+  config_overrides : ConfigObject?,
+) -> Exec {
   {
     // Runtime default-resolution difference: the upstream implementation resolves its npm platform package and bundled executable, whereas MoonBit resolves `codex` through the process PATH when no override is supplied.
     // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L69-L81 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L334-L410
@@ -80,9 +80,9 @@ fn CodexExec::CodexExec(
 
 ///|
 /// Cancellation type difference: cancelling the owning MoonBit task replaces the upstream AbortSignal.
-async fn CodexExec::run(
-  self : CodexExec,
-  args : CodexExecArgs,
+async fn Exec::run(
+  self : Exec,
+  args : ExecArgs,
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let command_args = ["exec", "--experimental-json"]
@@ -207,8 +207,8 @@ async fn CodexExec::run(
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L246-L250
 fn serialize_config_overrides(
-  config : CodexConfigObject,
-) -> Array[String] raise CodexSdkError {
+  config : ConfigObject,
+) -> Array[String] raise SdkError {
   let overrides : Array[String] = []
   flatten_config_overrides(ConfigObject(config), "", overrides)
   overrides
@@ -219,10 +219,10 @@ fn serialize_config_overrides(
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L252-L290
 fn flatten_config_overrides(
-  value : CodexConfigValue,
+  value : ConfigValue,
   prefix : String,
   overrides : Array[String],
-) -> Unit raise CodexSdkError {
+) -> Unit raise SdkError {
   match value {
     ConfigObject(object) => {
       if prefix == "" && object.is_empty() {
@@ -262,10 +262,7 @@ fn flatten_config_overrides(
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L292-L323
-fn to_toml_value(
-  value : CodexConfigValue,
-  path : String,
-) -> String raise CodexSdkError {
+fn to_toml_value(value : ConfigValue, path : String) -> String raise SdkError {
   match value {
     ConfigString(text) => Json::string(text).stringify()
     ConfigInt(number) => number.to_string()

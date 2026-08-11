@@ -57,8 +57,8 @@ pub(all) enum Input {
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L40-L45
 pub struct Thread {
-  priv exec : CodexExec
-  priv options : CodexOptions
+  priv exec : Exec
+  priv options : Options
   priv mut id_value : String?
   priv thread_options : ThreadOptions
 }
@@ -76,8 +76,8 @@ pub fn Thread::id(self : Thread) -> String? {
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L52-L63
 fn Thread::Thread(
-  exec : CodexExec,
-  options : CodexOptions,
+  exec : Exec,
+  options : Options,
   thread_options : ThreadOptions,
   id? : String,
 ) -> Thread {
@@ -206,7 +206,7 @@ pub async fn Thread::run(
     }
   })
   if turn_failure is Some(error) {
-    raise CodexSdkError::TurnFailed(message=error.message)
+    raise SdkError::TurnFailed(message=error.message)
   }
   { items: ReadOnlyArray::from_array(items), final_response, usage }
 }

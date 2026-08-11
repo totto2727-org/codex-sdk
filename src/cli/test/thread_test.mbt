@@ -2,9 +2,9 @@
 
 ///|
 using @codex {
-  type Codex,
-  type CodexConfigObject,
-  type CodexOptions,
+  type Client,
+  type ConfigObject,
+  type Options,
   type ThreadEvent,
   type ThreadOptions,
   type TurnOptions,
@@ -13,8 +13,8 @@ using @codex {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L20
-async test "Codex run - returns thread events" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - returns thread events" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )
@@ -42,8 +42,8 @@ async test "Codex run - returns thread events" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L53
-async test "Codex run - sends previous items when called twice" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - sends previous items when called twice" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "First response"),
@@ -61,8 +61,8 @@ async test "Codex run - sends previous items when called twice" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L96
-async test "Codex run - continues the thread when called twice with options" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - continues the thread when called twice with options" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "First response"),
@@ -86,8 +86,8 @@ async test "Codex run - continues the thread when called twice with options" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L140
-async test "Codex resumeThread - resumes thread by ID" {
-  with_fake_codex(async fn(fixture) {
+async test "Client resumeThread - resumes thread by ID" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "First response"),
@@ -108,8 +108,8 @@ async test "Codex resumeThread - resumes thread by ID" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L187
-async test "Codex run - passes turn options to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes turn options to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Turn options applied"),
@@ -132,8 +132,8 @@ async test "Codex run - passes turn options to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L226
-async test "Codex run - passes modelReasoningEffort to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes modelReasoningEffort to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Reasoning effort applied"),
@@ -157,8 +157,8 @@ async test "Codex run - passes modelReasoningEffort to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L257
-async test "Codex run - passes networkAccessEnabled to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes networkAccessEnabled to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Network access applied"),
@@ -182,8 +182,8 @@ async test "Codex run - passes networkAccessEnabled to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L288
-async test "Codex run - passes webSearchEnabled to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes webSearchEnabled to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Web search applied"),
@@ -205,8 +205,8 @@ async test "Codex run - passes webSearchEnabled to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L319
-async test "Codex run - passes webSearchMode to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes webSearchMode to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Web search mode applied"),
@@ -230,8 +230,8 @@ async test "Codex run - passes webSearchMode to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L350
-async test "Codex run - passes webSearchEnabled false to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes webSearchEnabled false to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Web search disabled"),
@@ -255,8 +255,8 @@ async test "Codex run - passes webSearchEnabled false to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L381
-async test "Codex run - passes approvalPolicy to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes approvalPolicy to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Approval applied"),
@@ -280,9 +280,9 @@ async test "Codex run - passes approvalPolicy to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L412
-async test "Codex run - passes CodexOptions config overrides as TOML flags" {
-  with_fake_codex(async fn(fixture) {
-    let config : CodexConfigObject = {
+async test "Client run - passes Options config overrides as TOML flags" {
+  with_cli_fixture(async fn(fixture) {
+    let config : ConfigObject = {
       "approval_policy": @codex.ConfigString("never"),
       "sandbox_workspace_write": @codex.ConfigObject({
         "network_access": @codex.ConfigBool(true),
@@ -295,9 +295,9 @@ async test "Codex run - passes CodexOptions config overrides as TOML flags" {
         ]),
       }),
     }
-    let client = Codex::Codex(
-      options=CodexOptions::CodexOptions(
-        codex_path_override=fixture.executable,
+    let client = Client::Client(
+      options=Options::Options(
+        executable_path_override=fixture.executable,
         config~,
         env=fixture.environment([
           completed_events("thread-1", "item-1", "Config applied"),
@@ -314,14 +314,14 @@ async test "Codex run - passes CodexOptions config overrides as TOML flags" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L453
-async test "Codex run - lets thread options override CodexOptions config" {
-  with_fake_codex(async fn(fixture) {
-    let config : CodexConfigObject = {
+async test "Client run - lets thread options override Options config" {
+  with_cli_fixture(async fn(fixture) {
+    let config : ConfigObject = {
       "approval_policy": @codex.ConfigString("never"),
     }
-    let client = Codex::Codex(
-      options=CodexOptions::CodexOptions(
-        codex_path_override=fixture.executable,
+    let client = Client::Client(
+      options=Options::Options(
+        executable_path_override=fixture.executable,
         config~,
         env=fixture.environment([
           completed_events("thread-1", "item-1", "Override applied"),
@@ -342,8 +342,8 @@ async test "Codex run - lets thread options override CodexOptions config" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L490
-async test "Codex run - passes additionalDirectories as repeated flags" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - passes additionalDirectories as repeated flags" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Directories applied"),
@@ -366,8 +366,8 @@ async test "Codex run - passes additionalDirectories as repeated flags" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L532
-async test "Codex run - writes output schema to a temporary file and forwards it" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - writes output schema to a temporary file and forwards it" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Structured response"),
@@ -390,8 +390,8 @@ async test "Codex run - writes output schema to a temporary file and forwards it
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L589
-async test "Codex run - combines structured text input segments" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - combines structured text input segments" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Combined input applied"),
@@ -415,8 +415,8 @@ async test "Codex run - combines structured text input segments" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L618
-async test "Codex run - forwards images to exec" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - forwards images to exec" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Images applied"),
@@ -441,8 +441,8 @@ async test "Codex run - forwards images to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L665
-async test "Codex run - runs in provided working directory" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - runs in provided working directory" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Working directory applied"),
@@ -465,8 +465,8 @@ async test "Codex run - runs in provided working directory" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L701
-async test "Codex run - throws when working directory is untrusted" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - throws when working directory is untrusted" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([])
     environment.set("FAKE_CODEX_REJECT_UNTRUSTED", "1")
     let thread = fixture
@@ -480,8 +480,7 @@ async test "Codex run - throws when working directory is untrusted" {
       thread.run(@codex.Prompt("use custom working directory")) |> ignore
       "no error"
     } catch {
-      @codex.CodexSdkError::ExecFailed(code~, stderr~) =>
-        "\{code}:\{stderr.trim()}"
+      @codex.SdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr.trim()}"
       error => "unexpected:\{error}"
     }
     inspect(detail, content="1:Not inside a trusted directory")
@@ -490,8 +489,8 @@ async test "Codex run - throws when working directory is untrusted" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L732
-async test "Codex run - sets the Codex SDK originator" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - sets the Codex SDK originator" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )
@@ -506,8 +505,8 @@ async test "Codex run - sets the Codex SDK originator" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L755
-async test "Codex run - throws TurnFailed on turn failures" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - throws TurnFailed on turn failures" {
+  with_cli_fixture(async fn(fixture) {
     let events = [
       "{\"type\":\"thread.started\",\"thread_id\":\"thread-1\"}", "{\"type\":\"turn.started\"}",
       "{\"type\":\"turn.failed\",\"error\":{\"message\":\"rate limit exceeded\"}}",
@@ -521,7 +520,7 @@ async test "Codex run - throws TurnFailed on turn failures" {
       })
       "no error"
     } catch {
-      @codex.CodexSdkError::@codex.TurnFailed(message~) => message
+      @codex.SdkError::@codex.TurnFailed(message~) => message
       @async.TimeoutError => "timed out"
       error => "unexpected:\{error}"
     }
@@ -537,21 +536,21 @@ async test "Codex run - throws TurnFailed on turn failures" {
 // This native white-box suite replaces the upstream Node/Jest and HTTP proxy machinery.
 
 ///|
-priv struct FakeCodex {
+priv struct CliFixture {
   root : String
   executable : @path.Path
   record_directory : String
 }
 
 ///|
-async fn create_fake_codex() -> FakeCodex {
+async fn create_cli_fixture() -> CliFixture {
   let root = @fs.tmpdir(prefix="codex-sdk-mbt-test-")
   let executable = @path.Path(root) |> @path.Path::join(@path.Path("codex"))
   let record_directory = (root |> @path.Path::join(@path.Path("records"))).to_string()
   @fs.mkdir(record_directory, recursive=true)
   @fs.write_file(
     executable.to_string(),
-    fake_codex_script(),
+    fake_cli_script(),
     create_mode=CreateOrTruncate,
   )
   @fs.chmod(executable.to_string(), 0o755)
@@ -559,8 +558,8 @@ async fn create_fake_codex() -> FakeCodex {
 }
 
 ///|
-async fn with_fake_codex(run : async (FakeCodex) -> Unit) -> Unit {
-  let fixture = create_fake_codex()
+async fn with_cli_fixture(run : async (CliFixture) -> Unit) -> Unit {
+  let fixture = create_cli_fixture()
   run(fixture) catch {
     error => {
       @async.protect_from_cancel(async fn() {
@@ -573,8 +572,8 @@ async fn with_fake_codex(run : async (FakeCodex) -> Unit) -> Unit {
 }
 
 ///|
-fn FakeCodex::environment(
-  self : FakeCodex,
+fn CliFixture::environment(
+  self : CliFixture,
   events_by_call : Array[String],
 ) -> Map[String, String] {
   let environment : Map[String, String] = {
@@ -588,21 +587,21 @@ fn FakeCodex::environment(
 }
 
 ///|
-fn FakeCodex::client(
-  self : FakeCodex,
+fn CliFixture::client(
+  self : CliFixture,
   environment : Map[String, String],
-) -> Codex {
-  Codex::Codex(
-    options=CodexOptions::CodexOptions(
-      codex_path_override=self.executable,
+) -> Client {
+  Client::Client(
+    options=Options::Options(
+      executable_path_override=self.executable,
       env=environment,
     ),
   )
 }
 
 ///|
-async fn FakeCodex::recorded_lines(
-  self : FakeCodex,
+async fn CliFixture::recorded_lines(
+  self : CliFixture,
   name : String,
   call : Int,
 ) -> Array[String] {
@@ -614,8 +613,8 @@ async fn FakeCodex::recorded_lines(
 }
 
 ///|
-async fn FakeCodex::recorded_text(
-  self : FakeCodex,
+async fn CliFixture::recorded_text(
+  self : CliFixture,
   name : String,
   call : Int,
 ) -> String {
@@ -637,7 +636,7 @@ fn completed_events(
 }
 
 ///|
-fn fake_codex_script() -> String {
+fn fake_cli_script() -> String {
   let script =
     #|#!/bin/sh
     #|set -eu
@@ -744,8 +743,8 @@ fn streamed_event_summary(event : ThreadEvent) -> String {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L15
-async test "Codex runStreamed - returns thread events" {
-  with_fake_codex(async fn(fixture) {
+async test "Client runStreamed - returns thread events" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )
@@ -764,8 +763,8 @@ async test "Codex runStreamed - returns thread events" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L65
-async test "Codex runStreamed - sends previous items when called twice" {
-  with_fake_codex(async fn(fixture) {
+async test "Client runStreamed - sends previous items when called twice" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "First response"),
@@ -787,8 +786,8 @@ async test "Codex runStreamed - sends previous items when called twice" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L111
-async test "Codex runStreamed - resumes thread by ID" {
-  with_fake_codex(async fn(fixture) {
+async test "Client runStreamed - resumes thread by ID" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "First response"),
@@ -812,8 +811,8 @@ async test "Codex runStreamed - resumes thread by ID" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L159
-async test "Codex runStreamed - applies output schema turn options" {
-  with_fake_codex(async fn(fixture) {
+async test "Client runStreamed - applies output schema turn options" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
         completed_events("thread-1", "item-1", "Structured response"),
@@ -864,8 +863,8 @@ async fn wait_for_cancellation(task : @async.Task[Unit]) -> Bool {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L21
-async test "Codex run - cancels when task is cancelled" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - cancels when task is cancelled" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
@@ -884,8 +883,8 @@ async test "Codex run - cancels when task is cancelled" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L43
-async test "Codex runStreamed - cancels when task is cancelled" {
-  with_fake_codex(async fn(fixture) {
+async test "Client runStreamed - cancels when task is cancelled" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
@@ -911,8 +910,8 @@ async test "Codex runStreamed - cancels when task is cancelled" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L82
-async test "Codex run - cancels during execution" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - cancels during execution" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
@@ -932,8 +931,8 @@ async test "Codex run - cancels during execution" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L108
-async test "Codex runStreamed - cancels during iteration" {
-  with_fake_codex(async fn(fixture) {
+async test "Client runStreamed - cancels during iteration" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
@@ -959,8 +958,8 @@ async test "Codex runStreamed - cancels during iteration" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L143
-async test "Codex run - completes normally when task is not cancelled" {
-  with_fake_codex(async fn(fixture) {
+async test "Client run - completes normally when task is not cancelled" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )

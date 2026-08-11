@@ -8,17 +8,17 @@ The immutable upstream reference for this port is commit [`f201c30c52a35f8192628
 
 ## Migration
 
-This standalone release is a breaking package-path migration. Update existing `totto2727/codex-sdk` imports to `totto2727/codex-sdk/cli`; the standalone module starts at version `0.2.1`.
+Version `0.3.0` exposes the CLI SDK through provider-neutral names under the package alias: `Client`, `Options`, `ConfigValue`, `ConfigObject`, and `SdkError`.
 
 ## Workspace usage
 
 ```mbt
 import {
-  "totto2727/codex-sdk/cli" @codex_sdk,
+  "totto2727/codex-sdk/cli" @codex,
 }
 ```
 
-The `codex` executable must be available on `PATH` for native process execution, or supplied with `codex_path_override`.
+The `codex` executable must be available on `PATH` for native process execution, or supplied with `Options.executable_path_override`.
 
 ## Target support
 
@@ -43,10 +43,10 @@ nix develop .#ci --command codex --version
 
 ```mbt
 async fn main {
-  let codex = @codex_sdk.Codex::Codex()
-  let thread = codex.start_thread()
+  let client = @codex.Client::Client()
+  let thread = client.start_thread()
   let turn = thread.run(
-    @codex_sdk.Input::Prompt("Diagnose the test failure and propose a fix"),
+    @codex.Input::Prompt("Diagnose the test failure and propose a fix"),
   )
   println(turn.final_response)
 }
@@ -60,7 +60,7 @@ MoonBit uses an asynchronous callback in place of TypeScript's `AsyncGenerator`.
 
 ```mbt
 thread.run_streamed(
-  @codex_sdk.Input::Prompt("Diagnose the test failure"),
+  @codex.Input::Prompt("Diagnose the test failure"),
   async event => {
     match event {
       ItemCompleted(completed) => println("\{completed.item}")
@@ -90,7 +90,7 @@ let schema = Json::object({
 })
 let turn = thread.run(
   Prompt("Summarize repository status"),
-  turn_options=@codex_sdk.TurnOptions::TurnOptions(output_schema=schema),
+  turn_options=@codex.TurnOptions::TurnOptions(output_schema=schema),
 )
 ```
 
@@ -100,11 +100,11 @@ The public event, item, option, thread, and turn models follow the official Type
 
 ## Agent core integration
 
-The provider depends directly on the single `totto2727/agent-core-sdk/cli` package from merged commit [`5bb57e3bb9bd5eeef2dc137f3899c13d115dc264`](https://github.com/totto2727-org/agent-core-sdk/commit/5bb57e3bb9bd5eeef2dc137f3899c13d115dc264). `CodexExec` owns Codex-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the native JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
+The provider depends directly on `totto2727/agent-core-sdk/cli`. `Exec` owns Codex-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
 
 ```mermaid
 flowchart LR
-  Thread[Codex Thread] --> Exec[CodexExec]
+  Thread[Codex Thread] --> Exec[Exec]
   Exec --> Invocation[agent_cli.Invocation]
   Invocation --> Run[agent_cli.run]
   Run --> Process[codex process]
@@ -117,8 +117,8 @@ The source layout follows the upstream files using MoonBit snake-case filenames:
 
 | Upstream TypeScript   | MoonBit                  |
 | --------------------- | ------------------------ |
-| `codex.ts`            | `codex.mbt`              |
-| `codexOptions.ts`     | `codex_options.mbt`      |
+| `codex.ts`            | `client.mbt`             |
+| `codexOptions.ts`     | `options.mbt`            |
 | `events.ts`           | `events.mbt`             |
 | `exec.ts`             | `exec.mbt`               |
 | `index.ts`            | `index.mbt`              |

@@ -2,8 +2,8 @@
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L47
-async test "CodexExec run - rejects when exit happens before stdout closes" {
-  with_fake_codex(async fn(fixture) {
+async test "Exec run - rejects when exit happens before stdout closes" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([])
     environment.set("FAKE_CODEX_HOLD_STDOUT", "1")
     environment.set("FAKE_CODEX_STDERR", "early failure")
@@ -15,8 +15,7 @@ async test "CodexExec run - rejects when exit happens before stdout closes" {
       })
       "no error"
     } catch {
-      @codex.CodexSdkError::ExecFailed(code~, stderr~) =>
-        "\{code}:\{stderr.trim()}"
+      @codex.SdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr.trim()}"
       error =>
         if @async.is_cancellation_error(error) {
           "timed out"
@@ -30,8 +29,8 @@ async test "CodexExec run - rejects when exit happens before stdout closes" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L74
-async test "CodexExec run - places resume args before image args" {
-  with_fake_codex(async fn(fixture) {
+async test "Exec run - places resume args before image args" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )
@@ -54,15 +53,15 @@ async test "CodexExec run - places resume args before image args" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/exec.test.ts#L100
-async test "CodexExec env - allows overriding environment passed to CLI" {
-  with_fake_codex(async fn(fixture) {
+async test "Exec env - allows overriding environment passed to CLI" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
     environment.set("CUSTOM_ENV", "custom")
-    let client = Codex::Codex(
-      options=CodexOptions::CodexOptions(
-        codex_path_override=fixture.executable,
+    let client = Client::Client(
+      options=Options::Options(
+        executable_path_override=fixture.executable,
         base_url="https://api.example.test/v1",
         api_key="secret-test-key",
         env=environment,
@@ -93,8 +92,8 @@ async test "CodexExec env - allows overriding environment passed to CLI" {
 
 ///|
 /// Runtime difference: MoonBit has no Node optional-package layout, so this proves the corresponding explicit executable override and process launch.
-async test "CodexExec path - launches the explicit executable override" {
-  with_fake_codex(async fn(fixture) {
+async test "Exec path - launches the explicit executable override" {
+  with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
     )
@@ -109,8 +108,8 @@ async test "CodexExec path - launches the explicit executable override" {
 
 ///|
 /// Runtime difference: without Node vendor directories, MoonBit passes the caller-provided PATH through unchanged.
-async test "CodexExec env - preserves caller PATH entries without rewriting them" {
-  with_fake_codex(async fn(fixture) {
+async test "Exec env - preserves caller PATH entries without rewriting them" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
@@ -128,8 +127,8 @@ async test "CodexExec env - preserves caller PATH entries without rewriting them
 
 ///|
 /// Runtime difference: without Node PATH prepending, MoonBit preserves the supplied key verbatim.
-async test "CodexExec env - preserves the Windows Path key" {
-  with_fake_codex(async fn(fixture) {
+async test "Exec env - preserves the Windows Path key" {
+  with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
     ])
