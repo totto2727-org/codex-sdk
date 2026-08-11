@@ -73,7 +73,9 @@ thread.run_streamed(
 
 Cancelling the MoonBit task that runs `run` or `run_streamed` cancels the Codex subprocess, which is the native equivalent of passing an `AbortSignal`.
 
-## Structured output
+## Options and lifecycle
+
+### Structured output
 
 Pass a JSON object as the per-turn output schema. The SDK writes it to a temporary file and forwards the path through `--output-schema`.
 
@@ -92,7 +94,7 @@ let turn = thread.run(
 )
 ```
 
-## TypeScript parity
+### TypeScript parity
 
 The public event, item, option, thread, and turn models follow the official TypeScript SDK. MoonBit paths use `moonbitlang/x/path.Path`, task cancellation replaces `AbortSignal`, and streaming uses an async callback because the pinned MoonBit async runtime does not expose an async-generator type. Node's optional-package binary lookup is replaced by `PATH` lookup because a MoonBit package has no Node module-resolution context.
 
