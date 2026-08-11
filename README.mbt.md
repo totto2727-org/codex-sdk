@@ -134,7 +134,7 @@ Run the preferred-target package checks from the repository root:
 
 ```sh
 moon check
-moon test --jobs 1 --no-parallelize
+moon test
 moon build
 ```
 
