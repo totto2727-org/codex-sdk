@@ -6,10 +6,6 @@ This package is a direct MoonBit port of the official [`@openai/codex-sdk`](http
 
 The immutable upstream reference for this port is commit [`f201c30c52a35f819262865a53df94b6f4ea7a50`](https://github.com/openai/codex/tree/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript). Every ported source process and test carries a comment linking to its corresponding file or line at that commit.
 
-## Migration
-
-Version `0.3.0` exposes the CLI SDK through provider-neutral names under the package alias: `Client`, `Options`, `ConfigValue`, `ConfigObject`, and `SdkError`.
-
 ## Workspace usage
 
 ```mbt
