@@ -6,7 +6,7 @@
 
 ///|
 /// Type difference: MoonBit represents the cleanup closure as a method and retains its directory as private state.
-priv struct OutputSchemaFile {
+priv struct InternalCodexOutputSchemaFile {
   schema_path : @path.Path?
   schema_directory : String?
 }
@@ -17,7 +17,9 @@ priv struct OutputSchemaFile {
 
 ///|
 /// Type difference: Json replaces TypeScript unknown and Path replaces filesystem strings.
-async fn create_output_schema_file(schema : Json?) -> OutputSchemaFile {
+async fn internal_codex_create_output_schema_file(
+  schema : Json?,
+) -> InternalCodexOutputSchemaFile {
   match schema {
     None => { schema_path: None, schema_directory: None }
     Some(schema) => {
@@ -56,8 +58,10 @@ async fn create_output_schema_file(schema : Json?) -> OutputSchemaFile {
 ///| Upstream cleanup closure: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/outputSchemaFile.ts#L21-L27
 
 ///|
-/// Type difference: this method replaces the upstream cleanup closure stored in OutputSchemaFile.
-async fn OutputSchemaFile::cleanup(self : OutputSchemaFile) -> Unit {
+/// Type difference: this method replaces the upstream cleanup closure stored in InternalCodexOutputSchemaFile.
+async fn InternalCodexOutputSchemaFile::internal_codex_cleanup(
+  self : InternalCodexOutputSchemaFile,
+) -> Unit {
   if self.schema_directory is Some(directory) {
     @fs.rmdir(directory, recursive=true) catch {
       _ => ()
