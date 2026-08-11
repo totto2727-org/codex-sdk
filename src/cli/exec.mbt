@@ -49,7 +49,7 @@ const MOONBIT_SDK_ORIGINATOR : String = "codex_sdk_mbt"
 struct Exec {
   executable_path : @path.Path
   env_override : Map[String, String]?
-  config_overrides : ConfigObject?
+  config : ConfigObject?
 }
 
 ///| Constructs the process adapter used by a Codex client.
@@ -61,14 +61,14 @@ struct Exec {
 fn Exec::Exec(
   executable_path : @path.Path?,
   env : Map[String, String]?,
-  config_overrides : ConfigObject?,
+  config : ConfigObject?,
 ) -> Exec {
   {
     // Runtime default-resolution difference: the upstream implementation resolves its npm platform package and bundled executable, whereas MoonBit resolves `codex` through the process PATH when no override is supplied.
     // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L69-L81 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L334-L410
     executable_path: executable_path.unwrap_or(@path.Path("codex")),
     env_override: env,
-    config_overrides,
+    config,
   }
 }
 
@@ -86,7 +86,7 @@ async fn Exec::run(
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let command_args = ["exec", "--experimental-json"]
-  if self.config_overrides is Some(config) {
+  if self.config is Some(config) {
     for item in serialize_config_overrides(config) {
       command_args.push("--config")
       command_args.push(item)
