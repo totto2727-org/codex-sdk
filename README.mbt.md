@@ -6,25 +6,11 @@ This package is a direct MoonBit port of the official [`@openai/codex-sdk`](http
 
 The immutable upstream reference for this port is commit [`f201c30c52a35f819262865a53df94b6f4ea7a50`](https://github.com/openai/codex/tree/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript). Every ported source process and test carries a comment linking to its corresponding file or line at that commit.
 
-## Workspace usage
-
-```mbt
-import {
-  "totto2727/codex-sdk/cli" @codex,
-}
-```
-
 The `codex` executable must be available on `PATH` for native process execution, or supplied with `Options.executable_path_override`.
 
 ## Target support
 
-| Surface | Native | Wasm |
-| --- | --- | --- |
-| Module and `src/cli` package | Supported | Supported |
-| CI validation | Not run in CI | Preferred target |
-| Codex subprocess execution | Uses the host process runtime | Requires a host/runtime process bridge |
-
-The SDK declares both native and wasm support, while CI validates the `wasm` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims.
+- CLI: `wasm` (preferred), `native`
 
 ## Development shells
 
