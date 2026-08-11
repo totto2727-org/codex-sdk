@@ -25,10 +25,10 @@ The `codex` executable must be available on `PATH` for native process execution,
 | Surface | Native | Wasm |
 | --- | --- | --- |
 | Module and `src/cli` package | Supported | Supported |
-| CI validation | Preferred target | Not run in CI |
+| CI validation | Not run in CI | Preferred target |
 | Codex subprocess execution | Uses the host process runtime | Requires a host/runtime process bridge |
 
-The SDK declares both native and wasm support, while CI validates the `native` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims.
+The SDK declares both native and wasm support, while CI validates the `wasm` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims.
 
 ## Development shells
 
