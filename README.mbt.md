@@ -30,6 +30,15 @@ The `codex` executable must be available on `PATH` for native process execution,
 
 The SDK declares both native and wasm support, while CI validates the `native` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims.
 
+## Development shells
+
+The default Nix development shell contains only the MoonBit toolchain. The CI shell derives from it and adds the Nix-managed `codex` executable for CI validation.
+
+```sh
+nix develop
+nix develop .#ci --command codex --version
+```
+
 ## Quickstart
 
 ```mbt
@@ -138,9 +147,10 @@ The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-f
 
 ```mermaid
 flowchart TD
-  Overlay[Exact-SHA workspace overlay] --> Metadata[moon info]
+  Shell[CI Nix devShell] --> Codex[codex --version]
+  Codex --> Metadata[moon info]
   Metadata --> Check[moon check]
-  Check --> Test[moon test --jobs 1 --no-parallelize]
+  Check --> Test[moon test]
   Test --> Build[moon build]
   Build --> Package[moon package --list]
 ```
