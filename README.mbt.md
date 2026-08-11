@@ -8,7 +8,7 @@ The immutable upstream reference for this port is commit [`f201c30c52a35f8192628
 
 ## Migration
 
-This standalone release is a breaking package-path migration. Update existing `totto2727/codex-sdk` imports to `totto2727/codex-sdk/cli`; the standalone module starts at version `0.2.0`.
+This standalone release is a breaking package-path migration. Update existing `totto2727/codex-sdk` imports to `totto2727/codex-sdk/cli`; the standalone module starts at version `0.2.1`.
 
 ## Workspace usage
 
