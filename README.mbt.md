@@ -87,7 +87,7 @@ let schema = Json::object({
   "additionalProperties": false,
 })
 let turn = thread.run(
-  Prompt("Summarize repository status"),
+  @codex.Input::Prompt("Summarize repository status"),
   turn_options=@codex.TurnOptions::TurnOptions(output_schema=schema),
 )
 ```
