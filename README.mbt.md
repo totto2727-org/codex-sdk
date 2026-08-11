@@ -18,7 +18,26 @@ import {
 }
 ```
 
-The native `codex` executable must be available on `PATH`, or supplied with `codex_path_override`.
+The `codex` executable must be available on `PATH` for native process execution, or supplied with `codex_path_override`.
+
+## Target support
+
+| Surface | Native | Wasm |
+| --- | --- | --- |
+| Module and `src/cli` package | Supported | Supported |
+| CI validation | Not run in CI | Preferred target |
+| Codex subprocess execution | Uses the host process runtime | Requires a host/runtime process bridge |
+
+The SDK declares both native and wasm support, while CI validates the `wasm` preferred target only. It keeps one target-neutral `src/cli` source and package. The process contract is supplied by `totto2727/agent-core-sdk/cli`; this module does not add target-specific source directories, packages, backends, or shims.
+
+## Development shells
+
+The default Nix development shell contains only the MoonBit toolchain. The CI shell derives from it and adds the Nix-managed `codex` executable for CI validation. The workflow uses the shared MoonBit actions from [`totto2727-org/monorepo@main`](https://github.com/totto2727-org/monorepo/tree/main/.github/actions).
+
+```sh
+nix develop
+nix develop .#ci --command codex --version
+```
 
 ## Quickstart
 
@@ -111,12 +130,15 @@ MoonBit-only files without a direct upstream module use descriptive names and do
 
 ## Tests
 
-Run the native package suite from the repository root:
+Run the preferred-target package checks from the repository root:
 
 ```sh
-moon test --target native src/cli
-moon test --target native src/cli/test
+moon check
+moon test
+moon build
 ```
+
+The module still declares native and wasm support. Pass an explicit `--target` only when deliberately validating a declared non-preferred target locally.
 
 The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-for-one against a native fake Codex executable that records arguments, environment variables, stdin, schemas, JSONL events, process exits, and cancellation. Another 26 cases cover the explicit MoonBit item and event decoders, including every discriminated union branch, malformed payloads, unknown variants, and invalid JSONL. The Node-only optional-package layout cases are represented by documented MoonBit-runtime substitutions for an explicit executable override, `PATH` executable fallback, exact caller-provided `PATH`, and preservation of the Windows `Path` key.
 
@@ -124,10 +146,9 @@ The 37 upstream `abort`, `exec`, `run`, and `runStreamed` cases are ported one-f
 
 ```mermaid
 flowchart TD
-  Overlay[Exact-SHA workspace overlay] --> Metadata[moon info]
-  Metadata --> Check[moon check --target native]
-  Check --> Whitebox[moon test --target native src/cli]
-  Whitebox --> Public[moon test --target native src/cli/test]
-  Public --> Build[moon build --target native]
-  Build --> Package[moon package --list]
+  Shell[CI Nix devShell] --> Codex[codex --version]
+  Codex --> Metadata[moon info]
+  Metadata --> Check[moon check]
+  Check --> Test[moon test]
+  Test --> Build[moon build]
 ```

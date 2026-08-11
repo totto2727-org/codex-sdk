@@ -12,9 +12,9 @@ keywords = [ "openai", "codex", "sdk", "moonbit" ]
 
 description = "MoonBit SDK for embedding the Codex agent in workflows and applications"
 
-preferred_target = "native"
+preferred_target = "wasm"
 
-supported_targets = "native"
+supported_targets = "+wasm+native"
 
 import {
   "moonbitlang/x@0.4.47",
