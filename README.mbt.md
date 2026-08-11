@@ -32,7 +32,7 @@ The SDK declares both native and wasm support, while CI validates the `native` p
 
 ## Development shells
 
-The default Nix development shell contains only the MoonBit toolchain. The CI shell derives from it and adds the Nix-managed `codex` executable for CI validation. The workflow pins the shared MoonBit actions to [`380f76bdd0f0ccc307c15ac9f48d7a7d851d1409`](https://github.com/totto2727-org/monorepo/commit/380f76bdd0f0ccc307c15ac9f48d7a7d851d1409), whose test step runs with `--no-parallelize`.
+The default Nix development shell contains only the MoonBit toolchain. The CI shell derives from it and adds the Nix-managed `codex` executable for CI validation. The workflow uses the shared MoonBit actions from [`totto2727-org/monorepo@main`](https://github.com/totto2727-org/monorepo/tree/main/.github/actions).
 
 ```sh
 nix develop
