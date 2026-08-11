@@ -86,7 +86,7 @@ async test "Client run - continues the thread when called twice with options" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L140
-async test "Client resumeThread - resumes thread by ID" {
+async test "Client resume_thread - resumes thread by ID" {
   with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
@@ -743,7 +743,7 @@ fn streamed_event_summary(event : ThreadEvent) -> String {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L15
-async test "Client runStreamed - returns thread events" {
+async test "Client run_streamed - returns thread events" {
   with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([completed_events("thread-1", "item-1", "Hi!")]),
@@ -763,7 +763,7 @@ async test "Client runStreamed - returns thread events" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L65
-async test "Client runStreamed - sends previous items when called twice" {
+async test "Client run_streamed - sends previous items when called twice" {
   with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
@@ -786,7 +786,7 @@ async test "Client runStreamed - sends previous items when called twice" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L111
-async test "Client runStreamed - resumes thread by ID" {
+async test "Client run_streamed - resumes thread by ID" {
   with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
@@ -811,7 +811,7 @@ async test "Client runStreamed - resumes thread by ID" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/runStreamed.test.ts#L159
-async test "Client runStreamed - applies output schema turn options" {
+async test "Client run_streamed - applies output schema turn options" {
   with_cli_fixture(async fn(fixture) {
     let client = fixture.client(
       fixture.environment([
@@ -883,7 +883,7 @@ async test "Client run - cancels when task is cancelled" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L43
-async test "Client runStreamed - cancels when task is cancelled" {
+async test "Client run_streamed - cancels when task is cancelled" {
   with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
@@ -931,7 +931,7 @@ async test "Client run - cancels during execution" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts#L108
-async test "Client runStreamed - cancels during iteration" {
+async test "Client run_streamed - cancels during iteration" {
   with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
       completed_events("thread-1", "item-1", "Hi!"),
