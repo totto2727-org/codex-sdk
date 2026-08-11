@@ -63,8 +63,8 @@ thread.run_streamed(
   @codex.Input::Prompt("Diagnose the test failure"),
   async event => {
     match event {
-      ItemCompleted(completed) => println("\{completed.item}")
-      TurnCompleted(completed) => println("\{completed.usage}")
+      @codex.ItemCompleted(completed) => println("\{completed.item}")
+      @codex.TurnCompleted(completed) => println("\{completed.usage}")
       _ => ()
     }
   },
