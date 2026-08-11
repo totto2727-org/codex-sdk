@@ -25,7 +25,3 @@ jobs:
       - uses: totto2727-org/monorepo/.github/actions/check-moonbit@main
         with:
           dev-shell: ci
-      - name: List MoonBit package contents
-        run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#ci")"
-          moon package --list

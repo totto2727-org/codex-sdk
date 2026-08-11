@@ -136,7 +136,6 @@ Run the preferred-target package checks from the repository root:
 moon check
 moon test --jobs 1 --no-parallelize
 moon build
-moon package --list
 ```
 
 The module still declares native and wasm support. Pass an explicit `--target` only when deliberately validating a declared non-preferred target locally.
@@ -152,5 +151,4 @@ flowchart TD
   Metadata --> Check[moon check]
   Check --> Test[moon test]
   Test --> Build[moon build]
-  Build --> Package[moon package --list]
 ```
