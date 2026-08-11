@@ -61,7 +61,7 @@ MoonBit uses an asynchronous callback in place of TypeScript's `AsyncGenerator`.
 ```mbt
 thread.run_streamed(
   @codex.Input::Prompt("Diagnose the test failure"),
-  async event => {
+  async fn(event) {
     match event {
       @codex.ItemCompleted(completed) => println("\{completed.item}")
       @codex.TurnCompleted(completed) => println("\{completed.usage}")
