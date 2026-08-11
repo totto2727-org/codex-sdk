@@ -21,13 +21,13 @@ pub(all) enum ConfigValue {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L3
 pub type ConfigObject = Map[String, ConfigValue]
 
-///| Options shared by every thread created from a Codex client.
+///| Client options shared by every thread created from a Codex client.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L5-L22
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
-pub struct Options {
+pub struct ClientOptions {
   executable_path_override : @path.Path?
   base_url : String?
   api_key : String?
@@ -35,18 +35,18 @@ pub struct Options {
   env : Map[String, String]?
 } derive(Eq)
 
-///| Constructs the same optional Options fields as the upstream object type.
+///| Constructs the same optional client option fields as the upstream object type.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L5-L22
 
 ///|
 /// Type difference: MoonBit structs require a constructor to provide the upstream empty-object defaults.
-pub fn Options::Options(
+pub fn ClientOptions::ClientOptions(
   executable_path_override? : @path.Path,
   base_url? : String,
   api_key? : String,
   config? : ConfigObject,
   env? : Map[String, String],
-) -> Options {
+) -> ClientOptions {
   { executable_path_override, base_url, api_key, config, env }
 }

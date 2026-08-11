@@ -18,7 +18,7 @@ import {
 }
 ```
 
-The `codex` executable must be available on `PATH` for native process execution, or supplied with `Options.executable_path_override`.
+The `codex` executable must be available on `PATH` for native process execution, or supplied with `ClientOptions.executable_path_override`.
 
 ## Target support
 
@@ -116,7 +116,7 @@ The source layout follows the upstream files using MoonBit snake-case filenames:
 | Upstream TypeScript   | MoonBit                  |
 | --------------------- | ------------------------ |
 | `codex.ts`            | `client.mbt`             |
-| `codexOptions.ts`     | `options.mbt`            |
+| `codexOptions.ts`     | `client_options.mbt`     |
 | `events.ts`           | `events.mbt`             |
 | `exec.ts`             | `exec.mbt`               |
 | `index.ts`            | `index.mbt`              |

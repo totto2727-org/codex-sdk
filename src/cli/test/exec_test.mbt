@@ -60,7 +60,7 @@ async test "Exec env - allows overriding environment passed to CLI" {
     ])
     environment.set("CUSTOM_ENV", "custom")
     let client = Client::Client(
-      options=Options::Options(
+      options=ClientOptions::ClientOptions(
         executable_path_override=fixture.executable,
         base_url="https://api.example.test/v1",
         api_key="secret-test-key",

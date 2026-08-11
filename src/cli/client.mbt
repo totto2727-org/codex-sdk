@@ -6,21 +6,24 @@
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L6-L13
 pub struct Client {
   priv exec : Exec
-  priv options : Options
+  // Retained because each turn reads the client-wide base URL and API key.
+  priv client_options : ClientOptions
 }
 
 ///| Constructs a Codex client.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L15-L19
-pub fn Client::Client(options? : Options = Options::Options()) -> Client {
+pub fn Client::Client(
+  options? : ClientOptions = ClientOptions::ClientOptions(),
+) -> Client {
   {
     exec: Exec::Exec(
       options.executable_path_override,
       options.env,
       options.config,
     ),
-    options,
+    client_options: options,
   }
 }
 
@@ -32,7 +35,7 @@ pub fn Client::start_thread(
   self : Client,
   options? : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
-  Thread::Thread(self.exec, self.options, options)
+  Thread::Thread(self.exec, self.client_options, options)
 }
 
 ///| Resumes a persisted conversation by thread identifier.
@@ -44,5 +47,5 @@ pub fn Client::resume_thread(
   id : String,
   options? : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
-  Thread::Thread(self.exec, self.options, options, id~)
+  Thread::Thread(self.exec, self.client_options, options, id~)
 }

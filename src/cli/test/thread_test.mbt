@@ -4,7 +4,7 @@
 using @codex {
   type Client,
   type ConfigObject,
-  type Options,
+  type ClientOptions,
   type ThreadEvent,
   type ThreadOptions,
   type TurnOptions,
@@ -280,7 +280,7 @@ async test "Client run - passes approvalPolicy to exec" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L412
-async test "Client run - passes Options config overrides as TOML flags" {
+async test "Client run - passes ClientOptions config overrides as TOML flags" {
   with_cli_fixture(async fn(fixture) {
     let config : ConfigObject = {
       "approval_policy": @codex.ConfigString("never"),
@@ -296,7 +296,7 @@ async test "Client run - passes Options config overrides as TOML flags" {
       }),
     }
     let client = Client::Client(
-      options=Options::Options(
+      options=ClientOptions::ClientOptions(
         executable_path_override=fixture.executable,
         config~,
         env=fixture.environment([
@@ -314,13 +314,13 @@ async test "Client run - passes Options config overrides as TOML flags" {
 
 ///|
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L453
-async test "Client run - lets thread options override Options config" {
+async test "Client run - lets thread options override ClientOptions config" {
   with_cli_fixture(async fn(fixture) {
     let config : ConfigObject = {
       "approval_policy": @codex.ConfigString("never"),
     }
     let client = Client::Client(
-      options=Options::Options(
+      options=ClientOptions::ClientOptions(
         executable_path_override=fixture.executable,
         config~,
         env=fixture.environment([
@@ -592,7 +592,7 @@ fn CliFixture::client(
   environment : Map[String, String],
 ) -> Client {
   Client::Client(
-    options=Options::Options(
+    options=ClientOptions::ClientOptions(
       executable_path_override=self.executable,
       env=environment,
     ),
