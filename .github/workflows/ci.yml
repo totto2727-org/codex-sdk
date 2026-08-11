@@ -10,6 +10,8 @@ permissions:
 
 jobs:
   check:
+    env:
+      NIX_DEV_SHELL: ci
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -17,11 +19,11 @@ jobs:
       - uses: totto2727-org/monorepo/.github/actions/setup-nix@main
       - uses: totto2727-org/monorepo/.github/actions/setup-moonbit@main
         with:
-          dev-shell: ci
+          dev-shell: ${{ env.NIX_DEV_SHELL }}
       - name: Verify Codex CLI
         run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#ci")"
+          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
           codex --version
       - uses: totto2727-org/monorepo/.github/actions/check-moonbit@main
         with:
-          dev-shell: ci
+          dev-shell: ${{ env.NIX_DEV_SHELL }}
