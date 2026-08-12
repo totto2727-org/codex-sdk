@@ -3,7 +3,7 @@
 // Event shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L5-L84
 
 ///|
-fn event_decode_error(source : String) -> String {
+fn event_decode_error_(source : String) -> String {
   try {
     let event : ThreadEvent = @json.from_json(@json.parse(source))
     event |> ignore
@@ -146,25 +146,25 @@ test "MoonBit event decoder - decodes stream errors" {
 ///|
 test "MoonBit event decoder - rejects unknown event types" {
   inspect(
-    event_decode_error("{\"type\":\"turn.unknown\"}"),
+    event_decode_error_("{\"type\":\"turn.unknown\"}"),
     content="unsupported thread event type: turn.unknown",
   )
 }
 
 ///|
 test "MoonBit event decoder - rejects missing event types" {
-  assert_true(event_decode_error("{}").contains("MissingProperty"))
+  assert_true(event_decode_error_("{}").contains("MissingProperty"))
 }
 
 ///|
 test "MoonBit event decoder - rejects non-object events" {
-  inspect(event_decode_error("[]"), content="thread event must be an object")
+  inspect(event_decode_error_("[]"), content="thread event must be an object")
 }
 
 ///|
 test "MoonBit event decoder - rejects invalid nested payloads" {
   inspect(
-    event_decode_error(
+    event_decode_error_(
       "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":\"ten\",\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
     ),
     content="Int::from_json: expected number",

@@ -3,7 +3,7 @@
 // Item shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 
 ///|
-fn item_decode_error(source : String) -> String {
+fn item_decode_error_(source : String) -> String {
   try {
     let item : ThreadItem = @json.from_json(@json.parse(source))
     item |> ignore
@@ -207,7 +207,7 @@ test "MoonBit item decoder - decodes error items" {
 ///|
 test "MoonBit item decoder - rejects unknown item types" {
   inspect(
-    item_decode_error("{\"id\":\"unknown-1\",\"type\":\"unknown\"}"),
+    item_decode_error_("{\"id\":\"unknown-1\",\"type\":\"unknown\"}"),
     content="unsupported thread item type: unknown",
   )
 }
@@ -215,7 +215,7 @@ test "MoonBit item decoder - rejects unknown item types" {
 ///|
 test "MoonBit item decoder - rejects unknown item statuses" {
   inspect(
-    item_decode_error(
+    item_decode_error_(
       "{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"queued\"}",
     ),
     content="unsupported command execution status: queued",
@@ -225,12 +225,12 @@ test "MoonBit item decoder - rejects unknown item statuses" {
 ///|
 test "MoonBit item decoder - rejects missing required fields" {
   inspect(
-    item_decode_error("{\"id\":\"message-1\",\"type\":\"agent_message\"}"),
+    item_decode_error_("{\"id\":\"message-1\",\"type\":\"agent_message\"}"),
     content="Missing field text",
   )
 }
 
 ///|
 test "MoonBit item decoder - rejects non-object items" {
-  inspect(item_decode_error("[]"), content="thread item must be an object")
+  inspect(item_decode_error_("[]"), content="thread item must be an object")
 }
