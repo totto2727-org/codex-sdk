@@ -21,25 +21,32 @@ let command_execution_exit_code_lens_ : @lens.PresenceLens[Int] = @lens.root()
   .nullish()
 
 ///|
-let item_status_lens_ : @lens.Lens[Json] = @lens.root().json("status")
+let command_execution_status_lens_ : @lens.Lens[CommandExecutionStatus] = @lens.root().custom(
+  "status",
+)
 
 ///|
 let file_update_path_lens_ : @lens.Lens[String] = @lens.root().string("path")
 
 ///|
-let file_update_kind_lens_ : @lens.Lens[Json] = @lens.root().json("kind")
+let file_update_kind_lens_ : @lens.Lens[PatchChangeKind] = @lens.root().custom(
+  "kind",
+)
 
 ///|
+/// MCP content blocks are protocol-defined opaque JSON values; only the array shape is fixed.
 let mcp_result_content_lens_ : @lens.Lens[Array[Json]] = @lens.root()
   .json("content")
   .array()
 
 ///|
+/// MCP metadata is provider-defined and intentionally remains opaque JSON.
 let mcp_result_meta_lens_ : @lens.PresenceLens[Json] = @lens.root()
   .json("_meta")
   .nullish()
 
 ///|
+/// Structured MCP output has no SDK-owned schema and intentionally remains raw JSON.
 let mcp_result_structured_content_lens_ : @lens.Lens[Json] = @lens.root().json(
   "structured_content",
 )
@@ -51,23 +58,38 @@ let mcp_item_server_lens_ : @lens.Lens[String] = @lens.root().string("server")
 let mcp_item_tool_lens_ : @lens.Lens[String] = @lens.root().string("tool")
 
 ///|
+/// MCP tool arguments follow each tool's schema and intentionally remain raw JSON.
 let mcp_item_arguments_lens_ : @lens.Lens[Json] = @lens.root().json("arguments")
 
 ///|
-let mcp_item_result_lens_ : @lens.PresenceLens[Json] = @lens.root()
-  .json("result")
+let mcp_item_result_lens_ : @lens.PresenceLens[McpToolCallResult] = @lens.root()
+  .custom("result")
   .nullish()
 
 ///|
-let mcp_item_error_lens_ : @lens.PresenceLens[Json] = @lens.root()
-  .json("error")
+let mcp_item_error_lens_ : @lens.PresenceLens[McpToolCallError] = @lens.root()
+  .custom("error")
   .nullish()
 
 ///|
-let file_change_changes_lens_ : @lens.Lens[Json] = @lens.root().json("changes")
+let file_change_changes_lens_ : @lens.Lens[Array[FileUpdateChange]] = @lens.root().custom(
+  "changes",
+)
 
 ///|
-let todo_list_items_lens_ : @lens.Lens[Json] = @lens.root().json("items")
+let todo_list_items_lens_ : @lens.Lens[Array[TodoItem]] = @lens.root().custom(
+  "items",
+)
+
+///|
+let file_change_status_lens_ : @lens.Lens[PatchApplyStatus] = @lens.root().custom(
+  "status",
+)
+
+///|
+let mcp_item_status_lens_ : @lens.Lens[McpToolCallStatus] = @lens.root().custom(
+  "status",
+)
 
 ///|
 let thread_item_type_lens_ : @lens.Lens[String] = @lens.root().string("type")
@@ -87,6 +109,15 @@ pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path)
 }
 
 ///|
+pub impl ToJson for CommandExecutionStatus with fn to_json(self) {
+  match self {
+    InProgress => "in_progress".to_json()
+    Completed => "completed".to_json()
+    Failed => "failed".to_json()
+  }
+}
+
+///|
 pub impl @json.FromJson for PatchChangeKind with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   match value {
@@ -101,6 +132,15 @@ pub impl @json.FromJson for PatchChangeKind with fn from_json(json, path) {
 }
 
 ///|
+pub impl ToJson for PatchChangeKind with fn to_json(self) {
+  match self {
+    Add => "add".to_json()
+    Delete => "delete".to_json()
+    Update => "update".to_json()
+  }
+}
+
+///|
 pub impl @json.FromJson for PatchApplyStatus with fn from_json(json, path) {
   let value : String = @json.from_json(json, path~)
   match value {
@@ -110,6 +150,14 @@ pub impl @json.FromJson for PatchApplyStatus with fn from_json(json, path) {
       raise @json.JsonDecodeError(
         (path, "unsupported patch apply status: \{value}"),
       )
+  }
+}
+
+///|
+pub impl ToJson for PatchApplyStatus with fn to_json(self) {
+  match self {
+    PatchCompleted => "completed".to_json()
+    PatchFailed => "failed".to_json()
   }
 }
 
@@ -128,6 +176,33 @@ pub impl @json.FromJson for McpToolCallStatus with fn from_json(json, path) {
 }
 
 ///|
+pub impl ToJson for McpToolCallStatus with fn to_json(self) {
+  match self {
+    McpInProgress => "in_progress".to_json()
+    McpCompleted => "completed".to_json()
+    McpFailed => "failed".to_json()
+  }
+}
+
+///|
+pub impl ToJson for FileUpdateChange with fn to_json(self) {
+  Json::object({ "path": "\{self.path}".to_json(), "kind": self.kind.to_json() })
+}
+
+///|
+pub impl ToJson for McpToolCallResult with fn to_json(self) {
+  let value : Map[String, Json] = {
+    "content": self.content.to_json(),
+    "structured_content": self.structured_content,
+  }
+  match self.meta {
+    Some(meta) => value["_meta"] = meta
+    None => ()
+  }
+  Json::object(value)
+}
+
+///|
 pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "command_execution must be an object"))
@@ -142,7 +217,7 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
   let exit_code = command_execution_exit_code_lens_.get_or_json_decode_error(
     json, path,
   )
-  let status : CommandExecutionStatus = item_status_lens_.decode_from_json(
+  let status = command_execution_status_lens_.get_or_json_decode_error(
     json, path,
   )
   { id, command, aggregated_output, exit_code, status }
@@ -154,9 +229,7 @@ pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
     raise @json.JsonDecodeError((path, "file update must be an object"))
   }
   let path_value = file_update_path_lens_.get_or_json_decode_error(json, path)
-  let kind : PatchChangeKind = file_update_kind_lens_.decode_from_json(
-    json, path,
-  )
+  let kind = file_update_kind_lens_.get_or_json_decode_error(json, path)
   { path: @path.Path(path_value), kind }
 }
 
@@ -182,28 +255,9 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
   let server = mcp_item_server_lens_.get_or_json_decode_error(json, path)
   let tool = mcp_item_tool_lens_.get_or_json_decode_error(json, path)
   let arguments = mcp_item_arguments_lens_.get_or_json_decode_error(json, path)
-  let result_value = mcp_item_result_lens_.get_or_json_decode_error(json, path)
-  let result = match result_value {
-    Some(value) =>
-      Some(
-        @json.from_json(
-          value,
-          path=mcp_item_result_lens_.add_to_json_path(path),
-        ),
-      )
-    None => None
-  }
-  let error_value = mcp_item_error_lens_.get_or_json_decode_error(json, path)
-  let error = match error_value {
-    Some(value) =>
-      Some(
-        @json.from_json(value, path=mcp_item_error_lens_.add_to_json_path(path)),
-      )
-    None => None
-  }
-  let status : McpToolCallStatus = item_status_lens_.decode_from_json(
-    json, path,
-  )
+  let result = mcp_item_result_lens_.get_or_json_decode_error(json, path)
+  let error = mcp_item_error_lens_.get_or_json_decode_error(json, path)
+  let status = mcp_item_status_lens_.get_or_json_decode_error(json, path)
   { id, server, tool, arguments, result, error, status }
 }
 
@@ -213,10 +267,8 @@ pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
     raise @json.JsonDecodeError((path, "file_change must be an object"))
   }
   let id = item_id_lens_.get_or_json_decode_error(json, path)
-  let changes : Array[FileUpdateChange] = file_change_changes_lens_.decode_from_json(
-    json, path,
-  )
-  let status : PatchApplyStatus = item_status_lens_.decode_from_json(json, path)
+  let changes = file_change_changes_lens_.get_or_json_decode_error(json, path)
+  let status = file_change_status_lens_.get_or_json_decode_error(json, path)
   { id, changes: ReadOnlyArray::from_array(changes), status }
 }
 
@@ -226,9 +278,7 @@ pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
     raise @json.JsonDecodeError((path, "todo_list must be an object"))
   }
   let id = item_id_lens_.get_or_json_decode_error(json, path)
-  let items : Array[TodoItem] = todo_list_items_lens_.decode_from_json(
-    json, path,
-  )
+  let items = todo_list_items_lens_.get_or_json_decode_error(json, path)
   { id, items: ReadOnlyArray::from_array(items) }
 }
 
