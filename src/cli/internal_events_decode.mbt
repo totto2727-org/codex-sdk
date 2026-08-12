@@ -3,64 +3,52 @@
 // Event shapes being decoded: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L5-L84
 
 ///|
-let usage_input_tokens_lens_ : @lens.Lens[Json] = @lens.root().json(
+let usage_input_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
   "input_tokens",
 )
 
 ///|
-let usage_cached_input_tokens_lens_ : @lens.Lens[Json] = @lens.root().json(
+let usage_cached_input_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
   "cached_input_tokens",
 )
 
 ///|
-let usage_cache_write_input_tokens_lens_ : @lens.PresenceLens[Json] = @lens.root()
-  .json("cache_write_input_tokens")
+let usage_cache_write_input_tokens_lens_ : @lens.PresenceLens[Int] = @lens.root()
+  .custom("cache_write_input_tokens")
   .optional()
 
 ///|
-let usage_output_tokens_lens_ : @lens.Lens[Json] = @lens.root().json(
+let usage_output_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
   "output_tokens",
 )
 
 ///|
-let usage_reasoning_output_tokens_lens_ : @lens.Lens[Json] = @lens.root().json(
+let usage_reasoning_output_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
   "reasoning_output_tokens",
 )
 
 ///|
-let thread_event_type_lens_ : @lens.Lens[Json] = @lens.root().json("type")
+let thread_event_type_lens_ : @lens.Lens[String] = @lens.root().custom("type")
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "usage must be an object"))
   }
-  let input_tokens : Int = @json.from_json(
-    usage_input_tokens_lens_.get_or_json_decode_error(json, path),
-    path=usage_input_tokens_lens_.add_to_json_path(path),
-  )
-  let cached_input_tokens : Int = @json.from_json(
-    usage_cached_input_tokens_lens_.get_or_json_decode_error(json, path),
-    path=usage_cached_input_tokens_lens_.add_to_json_path(path),
-  )
-  let cache_write_value = usage_cache_write_input_tokens_lens_.get_or_json_decode_error(
+  let input_tokens = usage_input_tokens_lens_.get_or_json_decode_error(
     json, path,
   )
-  let cache_write_input_tokens = match cache_write_value {
-    Some(value) =>
-      @json.from_json(
-        value,
-        path=usage_cache_write_input_tokens_lens_.add_to_json_path(path),
-      )
-    None => 0
-  }
-  let output_tokens : Int = @json.from_json(
-    usage_output_tokens_lens_.get_or_json_decode_error(json, path),
-    path=usage_output_tokens_lens_.add_to_json_path(path),
+  let cached_input_tokens = usage_cached_input_tokens_lens_.get_or_json_decode_error(
+    json, path,
   )
-  let reasoning_output_tokens : Int = @json.from_json(
-    usage_reasoning_output_tokens_lens_.get_or_json_decode_error(json, path),
-    path=usage_reasoning_output_tokens_lens_.add_to_json_path(path),
+  let cache_write_input_tokens = usage_cache_write_input_tokens_lens_
+    .get_or_json_decode_error(json, path)
+    .unwrap_or(0)
+  let output_tokens = usage_output_tokens_lens_.get_or_json_decode_error(
+    json, path,
+  )
+  let reasoning_output_tokens = usage_reasoning_output_tokens_lens_.get_or_json_decode_error(
+    json, path,
   )
   {
     input_tokens,
@@ -76,10 +64,7 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "thread event must be an object"))
   }
-  let event_type : String = @json.from_json(
-    thread_event_type_lens_.get_or_json_decode_error(json, path),
-    path=thread_event_type_lens_.add_to_json_path(path),
-  )
+  let event_type = thread_event_type_lens_.get_or_json_decode_error(json, path)
   match event_type {
     "thread.started" => ThreadStarted(@json.from_json(json, path~))
     "turn.started" => TurnStarted(@json.from_json(json, path~))

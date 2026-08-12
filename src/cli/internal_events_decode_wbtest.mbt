@@ -169,4 +169,10 @@ test "MoonBit event decoder - rejects invalid nested payloads" {
     ),
     content="Int::from_json: expected number",
   )
+  inspect(
+    event_decode_error_(
+      "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":2147483648,\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
+    ),
+    content="Int::from_json: overflow",
+  )
 }

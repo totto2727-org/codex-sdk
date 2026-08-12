@@ -21,7 +21,7 @@ import {
   "moonbitlang/async@0.20.3",
   "totto2727/agent-core-sdk@0.1.1",
   "totto2727/copy@0.2.0",
-  "totto2727/lens@0.4.0",
+  "totto2727/lens@0.4.2",
 }
 
 source = "./src"
