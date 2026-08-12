@@ -3,32 +3,32 @@
 // Event shapes being decoded: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L5-L84
 
 ///|
-let usage_input_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
+let usage_input_tokens_lens_ : @lens.Lens[Int] = @lens.root().int(
   "input_tokens",
 )
 
 ///|
-let usage_cached_input_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
+let usage_cached_input_tokens_lens_ : @lens.Lens[Int] = @lens.root().int(
   "cached_input_tokens",
 )
 
 ///|
 let usage_cache_write_input_tokens_lens_ : @lens.PresenceLens[Int] = @lens.root()
-  .custom("cache_write_input_tokens")
+  .int("cache_write_input_tokens")
   .optional()
 
 ///|
-let usage_output_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
+let usage_output_tokens_lens_ : @lens.Lens[Int] = @lens.root().int(
   "output_tokens",
 )
 
 ///|
-let usage_reasoning_output_tokens_lens_ : @lens.Lens[Int] = @lens.root().custom(
+let usage_reasoning_output_tokens_lens_ : @lens.Lens[Int] = @lens.root().int(
   "reasoning_output_tokens",
 )
 
 ///|
-let thread_event_type_lens_ : @lens.Lens[String] = @lens.root().custom("type")
+let thread_event_type_lens_ : @lens.Lens[String] = @lens.root().string("type")
 
 ///|
 pub impl @json.FromJson for Usage with fn from_json(json, path) {

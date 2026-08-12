@@ -3,36 +3,36 @@
 // Item shapes being decoded: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 
 ///|
-let item_id_lens_ : @lens.Lens[String] = @lens.root().custom("id")
+let item_id_lens_ : @lens.Lens[String] = @lens.root().string("id")
 
 ///|
-let command_execution_command_lens_ : @lens.Lens[String] = @lens.root().custom(
+let command_execution_command_lens_ : @lens.Lens[String] = @lens.root().string(
   "command",
 )
 
 ///|
-let command_execution_aggregated_output_lens_ : @lens.Lens[String] = @lens.root().custom(
+let command_execution_aggregated_output_lens_ : @lens.Lens[String] = @lens.root().string(
   "aggregated_output",
 )
 
 ///|
 let command_execution_exit_code_lens_ : @lens.PresenceLens[Int] = @lens.root()
-  .custom("exit_code")
+  .int("exit_code")
   .nullish()
 
 ///|
 let item_status_lens_ : @lens.Lens[Json] = @lens.root().json("status")
 
 ///|
-let file_update_path_lens_ : @lens.Lens[String] = @lens.root().custom("path")
+let file_update_path_lens_ : @lens.Lens[String] = @lens.root().string("path")
 
 ///|
 let file_update_kind_lens_ : @lens.Lens[Json] = @lens.root().json("kind")
 
 ///|
-let mcp_result_content_lens_ : @lens.Lens[Array[Json]] = @lens.root().custom(
-  "content",
-)
+let mcp_result_content_lens_ : @lens.Lens[Array[Json]] = @lens.root()
+  .json("content")
+  .array()
 
 ///|
 let mcp_result_meta_lens_ : @lens.PresenceLens[Json] = @lens.root()
@@ -45,10 +45,10 @@ let mcp_result_structured_content_lens_ : @lens.Lens[Json] = @lens.root().json(
 )
 
 ///|
-let mcp_item_server_lens_ : @lens.Lens[String] = @lens.root().custom("server")
+let mcp_item_server_lens_ : @lens.Lens[String] = @lens.root().string("server")
 
 ///|
-let mcp_item_tool_lens_ : @lens.Lens[String] = @lens.root().custom("tool")
+let mcp_item_tool_lens_ : @lens.Lens[String] = @lens.root().string("tool")
 
 ///|
 let mcp_item_arguments_lens_ : @lens.Lens[Json] = @lens.root().json("arguments")
@@ -70,7 +70,7 @@ let file_change_changes_lens_ : @lens.Lens[Json] = @lens.root().json("changes")
 let todo_list_items_lens_ : @lens.Lens[Json] = @lens.root().json("items")
 
 ///|
-let thread_item_type_lens_ : @lens.Lens[String] = @lens.root().custom("type")
+let thread_item_type_lens_ : @lens.Lens[String] = @lens.root().string("type")
 
 ///|
 pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path) {
