@@ -116,9 +116,7 @@ async fn Thread::run_streamed_internal(
   turn_options : TurnOptions,
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
-  let schema_file = internal_codex_create_output_schema_file(
-    turn_options.output_schema,
-  )
+  let schema_file = create_output_schema_file_(turn_options.output_schema)
   let normalized = normalize_input(input)
   let thread_options = self.thread_options
   let stop_requested = Ref(false)
@@ -156,7 +154,7 @@ async fn Thread::run_streamed_internal(
   ) catch {
     error => Err(error)
   }
-  @async.protect_from_cancel(async fn() { schema_file.internal_codex_cleanup() })
+  @async.protect_from_cancel(async fn() { schema_file.cleanup_() })
   match result {
     Ok(_) => ()
     Err(error) =>

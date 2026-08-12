@@ -75,7 +75,7 @@ async fn Exec::run(
 ) -> Unit {
   let command_args = ["exec", "--experimental-json"]
   if self.config is Some(config) {
-    for item in internal_codex_serialize_config_overrides(config) {
+    for item in serialize_config_overrides_(config) {
       command_args.push("--config")
       command_args.push(item)
     }
@@ -83,7 +83,7 @@ async fn Exec::run(
   if args.base_url is Some(base_url) {
     command_args.push("--config")
     command_args.push(
-      "openai_base_url=\{internal_codex_to_toml_value(ConfigString(base_url), "openai_base_url")}",
+      "openai_base_url=\{to_toml_value_(ConfigString(base_url), "openai_base_url")}",
     )
   }
   if args.model is Some(model) {
@@ -152,16 +152,12 @@ async fn Exec::run(
     None => Map([])
   }
   let inherited_originator = if self.env_override is None {
-    @env.get_env_var(INTERNAL_CODEX_ORIGINATOR_ENV)
+    @env.get_env_var(ORIGINATOR_ENV_)
   } else {
     None
   }
-  if environment.get(INTERNAL_CODEX_ORIGINATOR_ENV) is None &&
-    inherited_originator is None {
-    environment.set(
-      INTERNAL_CODEX_ORIGINATOR_ENV,
-      INTERNAL_CODEX_MOONBIT_SDK_ORIGINATOR,
-    )
+  if environment.get(ORIGINATOR_ENV_) is None && inherited_originator is None {
+    environment.set(ORIGINATOR_ENV_, MOONBIT_SDK_ORIGINATOR_)
   }
   if args.api_key is Some(value) {
     environment.set("CODEX_API_KEY", value)

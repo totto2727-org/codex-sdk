@@ -121,7 +121,7 @@ The source layout follows the upstream files using MoonBit snake-case filenames:
 | `exec.ts`             | `exec.mbt`               |
 | `index.ts`            | `index.mbt`              |
 | `items.ts`            | `items.mbt`              |
-| `outputSchemaFile.ts` | `output_schema_file.mbt` |
+| `outputSchemaFile.ts` | `internal_output_schema_file.mbt` |
 | `thread.ts`           | `thread.mbt`             |
 | `threadOptions.ts`    | `thread_options.mbt`     |
 | `turnOptions.ts`      | `turn_options.mbt`       |

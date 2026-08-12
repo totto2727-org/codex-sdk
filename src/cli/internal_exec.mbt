@@ -4,23 +4,23 @@
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L43-L45
-const INTERNAL_CODEX_ORIGINATOR_ENV : String = "CODEX_INTERNAL_ORIGINATOR_OVERRIDE"
+const ORIGINATOR_ENV_ : String = "CODEX_INTERNAL_ORIGINATOR_OVERRIDE"
 
 // Type/language difference: the originator identifies this MoonBit port instead of the TypeScript SDK.
 // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L43-L45
 
 ///|
-const INTERNAL_CODEX_MOONBIT_SDK_ORIGINATOR : String = "codex_sdk_mbt"
+const MOONBIT_SDK_ORIGINATOR_ : String = "codex_sdk_mbt"
 
 ///| Serializes Codex config overrides before per-thread arguments.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L246-L250
-fn internal_codex_serialize_config_overrides(
+fn serialize_config_overrides_(
   config : ConfigObject,
 ) -> Array[String] raise SdkError {
   let overrides : Array[String] = []
-  internal_codex_flatten_config_overrides(ConfigObject(config), "", overrides)
+  flatten_config_overrides_(ConfigObject(config), "", overrides)
   overrides
 }
 
@@ -28,7 +28,7 @@ fn internal_codex_serialize_config_overrides(
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L252-L290
-fn internal_codex_flatten_config_overrides(
+fn flatten_config_overrides_(
   value : ConfigValue,
   prefix : String,
   overrides : Array[String],
@@ -51,12 +51,8 @@ fn internal_codex_flatten_config_overrides(
         }
         let path = if prefix == "" { key } else { "\{prefix}.\{key}" }
         match child {
-          ConfigObject(_) =>
-            internal_codex_flatten_config_overrides(child, path, overrides)
-          _ =>
-            overrides.push(
-              "\{path}=\{internal_codex_to_toml_value(child, path)}",
-            )
+          ConfigObject(_) => flatten_config_overrides_(child, path, overrides)
+          _ => overrides.push("\{path}=\{to_toml_value_(child, path)}")
         }
       }
     }
@@ -67,9 +63,7 @@ fn internal_codex_flatten_config_overrides(
           message="Codex config overrides must be a plain object",
         )
       } else {
-        overrides.push(
-          "\{prefix}=\{internal_codex_to_toml_value(value, prefix)}",
-        )
+        overrides.push("\{prefix}=\{to_toml_value_(value, prefix)}")
       }
   }
 }
@@ -78,10 +72,7 @@ fn internal_codex_flatten_config_overrides(
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L292-L323
-fn internal_codex_to_toml_value(
-  value : ConfigValue,
-  path : String,
-) -> String raise SdkError {
+fn to_toml_value_(value : ConfigValue, path : String) -> String raise SdkError {
   match value {
     ConfigString(text) => Json::string(text).stringify()
     ConfigInt(number) => number.to_string()
@@ -96,7 +87,7 @@ fn internal_codex_to_toml_value(
     }
     ConfigBool(value) => if value { "true" } else { "false" }
     ConfigArray(values) =>
-      "[\{values.mapi((index, item) => internal_codex_to_toml_value(item, "\{path}[\{index}]")).join(", ")}]"
+      "[\{values.mapi((index, item) => to_toml_value_(item, "\{path}[\{index}]")).join(", ")}]"
     ConfigObject(object) => {
       let parts : Array[String] = []
       for key, child in object {
@@ -107,7 +98,7 @@ fn internal_codex_to_toml_value(
           )
         }
         parts.push(
-          "\{internal_codex_format_toml_key(key)} = \{internal_codex_to_toml_value(child, "\{path}.\{key}")}",
+          "\{format_toml_key_(key)} = \{to_toml_value_(child, "\{path}.\{key}")}",
         )
       }
       "{\{parts.join(", ")}}"
@@ -119,7 +110,7 @@ fn internal_codex_to_toml_value(
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L325-L328
-fn internal_codex_format_toml_key(key : String) -> String {
+fn format_toml_key_(key : String) -> String {
   let is_bare = key
     .iter()
     .all(char => {
