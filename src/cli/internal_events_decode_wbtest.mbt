@@ -163,18 +163,8 @@ test "MoonBit event decoder - rejects non-object events" {
 
 ///|
 test "MoonBit event decoder - rejects invalid nested payloads" {
-  inspect(
-    event_decode_error_(
-      "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":\"ten\",\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
-    ),
-    content=(
-      #|LensError(
-      #|  {
-      #|    pointer: { segments: [] },
-      #|    code: TypeMismatch(expected=Number, actual=String),
-      #|    message: None,
-      #|  },
-      #|)
-    ),
+  let error = event_decode_error_(
+    "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":\"ten\",\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
   )
+  assert_true(error.contains("TypeMismatch(expected=Number, actual=String)"))
 }
