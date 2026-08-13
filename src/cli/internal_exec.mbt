@@ -12,6 +12,10 @@ const ORIGINATOR_ENV_ : String = "CODEX_INTERNAL_ORIGINATOR_OVERRIDE"
 ///|
 const MOONBIT_SDK_ORIGINATOR_ : String = "codex_sdk_mbt"
 
+///|
+/// Matches the maximum container depth accepted by `totto2727/x/json` paths.
+const MAX_CONFIG_DEPTH_ : Int = 256
+
 ///| Serializes Codex config overrides before per-thread arguments.
 
 ///|
@@ -59,28 +63,52 @@ fn serialize_config_overrides_(
       )
   }
   for path, value in flattened {
-    guard path != "" else {
-      raise InvalidConfig(
-        path~,
-        message="Codex config overrides must be a plain object",
-      )
-    }
-    guard !path.contains("[") else {
+    guard is_codex_dotted_path_(path) else {
       raise InvalidConfig(
         path~,
         message="Codex config override paths must use dotted keys",
       )
     }
-    overrides.push("\{path}=\{to_toml_value_(value, path)}")
+    overrides.push(
+      "\{path}=\{to_toml_value_(value, path, depth=path.split(".").length())}",
+    )
   }
   overrides
+}
+
+///|
+/// Checks the key syntax accepted by the Codex dotted config path boundary.
+fn is_codex_dotted_path_(path : String) -> Bool {
+  path
+  .split(".")
+  .all(segment => {
+    segment.length() > 0 &&
+    segment
+    .iter()
+    .all(char => {
+      char.is_ascii_alphabetic() ||
+      char.is_ascii_digit() ||
+      char == '-' ||
+      char == '_'
+    })
+  })
 }
 
 ///| Converts one Codex config value to the TOML literal accepted by `--config`.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L292-L323
-fn to_toml_value_(value : Json, path : String) -> String raise SdkError {
+fn to_toml_value_(
+  value : Json,
+  path : String,
+  depth? : Int = 1,
+) -> String raise SdkError {
+  guard depth <= MAX_CONFIG_DEPTH_ else {
+    raise InvalidConfig(
+      path~,
+      message="Codex config override exceeds the depth limit: \{depth}",
+    )
+  }
   match value {
     Json::Null =>
       raise InvalidConfig(path~, message="Codex config override cannot be null")
@@ -97,7 +125,7 @@ fn to_toml_value_(value : Json, path : String) -> String raise SdkError {
       repr.unwrap_or(number.to_string())
     }
     Json::Array(values) =>
-      "[\{values.mapi((index, item) => to_toml_value_(item, "\{path}[\{index}]")).join(", ")}]"
+      "[\{values.mapi((index, item) => to_toml_value_(item, "\{path}[\{index}]", depth=depth + 1)).join(", ")}]"
     Json::Object(object) => {
       let parts : Array[String] = []
       for key, child in object {
@@ -108,7 +136,7 @@ fn to_toml_value_(value : Json, path : String) -> String raise SdkError {
           )
         }
         parts.push(
-          "\{format_toml_key_(key)} = \{to_toml_value_(child, "\{path}.\{key}")}",
+          "\{format_toml_key_(key)} = \{to_toml_value_(child, "\{path}.\{key}", depth=depth + 1)}",
         )
       }
       "{\{parts.join(", ")}}"
