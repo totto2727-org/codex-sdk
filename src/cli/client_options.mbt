@@ -1,25 +1,10 @@
 // Direct port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts
 
-///| A recursively typed Codex CLI configuration value.
-
-///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L1-L3
-
-///|
-/// Type difference: MoonBit requires an explicit recursive enum in place of the TypeScript union.
-pub(all) enum ConfigValue {
-  ConfigString(String)
-  ConfigInt(Int)
-  ConfigDouble(Double)
-  ConfigBool(Bool)
-  ConfigArray(Array[ConfigValue])
-  ConfigObject(Map[String, ConfigValue])
-} derive(Debug, Eq)
-
 ///| A JSON-shaped object whose values are serialized as TOML CLI overrides.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L3
-pub type ConfigObject = Map[String, ConfigValue]
+pub type ConfigObject = Map[String, Json]
 
 ///| Client options shared by every thread created from a Codex client.
 

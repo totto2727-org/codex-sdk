@@ -20,75 +20,85 @@ fn serialize_config_overrides_(
   config : ConfigObject,
 ) -> Array[String] raise SdkError {
   let overrides : Array[String] = []
-  flatten_config_overrides_(ConfigObject(config), "", overrides)
-  overrides
-}
-
-///| Flattens nested Codex config objects into dotted CLI override paths.
-
-///|
-/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L252-L290
-fn flatten_config_overrides_(
-  value : ConfigValue,
-  prefix : String,
-  overrides : Array[String],
-) -> Unit raise SdkError {
-  match value {
-    ConfigObject(object) => {
-      if prefix == "" && object.is_empty() {
-        return
-      }
-      if prefix != "" && object.is_empty() {
-        overrides.push("\{prefix}={}")
-        return
-      }
-      for key, child in object {
-        guard key != "" else {
-          raise InvalidConfig(
-            path=prefix,
-            message="Codex config override keys must be non-empty strings",
-          )
-        }
-        let path = if prefix == "" { key } else { "\{prefix}.\{key}" }
-        match child {
-          ConfigObject(_) => flatten_config_overrides_(child, path, overrides)
-          _ => overrides.push("\{path}=\{to_toml_value_(child, path)}")
-        }
-      }
-    }
-    _ =>
-      if prefix == "" {
-        raise InvalidConfig(
-          path="",
-          message="Codex config overrides must be a plain object",
-        )
-      } else {
-        overrides.push("\{prefix}=\{to_toml_value_(value, prefix)}")
-      }
+  let flattened = @x_json.flatten(
+    Json::object(config),
+    @x_json.JavaScript,
+    array_mode=@x_json.Preserve,
+  ) catch {
+    @x_json.ObjectValue(path) =>
+      raise InvalidConfig(
+        path~,
+        message="Codex config override contains an object leaf",
+      )
+    @x_json.AmbiguousPointerToken(path) =>
+      raise InvalidConfig(
+        path~,
+        message="Codex config override contains an ambiguous path token",
+      )
+    @x_json.InvalidPath(path) =>
+      raise InvalidConfig(
+        path~,
+        message="Codex config override path is invalid",
+      )
+    @x_json.PathLengthExceeded(length) =>
+      raise InvalidConfig(
+        path="",
+        message="Codex config override path exceeds the length limit: \{length}",
+      )
+    @x_json.PathDepthExceeded(depth) =>
+      raise InvalidConfig(
+        path="",
+        message="Codex config override path exceeds the depth limit: \{depth}",
+      )
+    @x_json.PathConflict(path) =>
+      raise InvalidConfig(path~, message="Codex config override paths conflict")
+    @x_json.ArrayIndexGap(path) =>
+      raise InvalidConfig(
+        path~,
+        message="Codex config override has an array gap",
+      )
   }
+  for path, value in flattened {
+    guard path != "" else {
+      raise InvalidConfig(
+        path~,
+        message="Codex config overrides must be a plain object",
+      )
+    }
+    guard !path.contains("[") else {
+      raise InvalidConfig(
+        path~,
+        message="Codex config override paths must use dotted keys",
+      )
+    }
+    overrides.push("\{path}=\{to_toml_value_(value, path)}")
+  }
+  overrides
 }
 
 ///| Converts one Codex config value to the TOML literal accepted by `--config`.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L292-L323
-fn to_toml_value_(value : ConfigValue, path : String) -> String raise SdkError {
+fn to_toml_value_(value : Json, path : String) -> String raise SdkError {
   match value {
-    ConfigString(text) => Json::string(text).stringify()
-    ConfigInt(number) => number.to_string()
-    ConfigDouble(number) => {
+    Json::Null =>
+      raise InvalidConfig(path~, message="Codex config override cannot be null")
+    Json::True => "true"
+    Json::False => "false"
+    Json::String(text) => Json::string(text).stringify()
+    Json::Number(number, repr~) => {
       guard !number.is_nan() && !number.is_inf() else {
         raise InvalidConfig(
           path~,
           message="Codex config override must be a finite number",
         )
       }
-      number.to_string()
+      repr.unwrap_or(number.to_string())
     }
-    ConfigBool(value) => if value { "true" } else { "false" }
-    ConfigArray(values) =>
+    Json::Array(values) =>
       "[\{values.mapi((index, item) => to_toml_value_(item, "\{path}[\{index}]")).join(", ")}]"
-    ConfigObject(object) => {
+    Json::Object(object) => {
       let parts : Array[String] = []
       for key, child in object {
         guard key != "" else {

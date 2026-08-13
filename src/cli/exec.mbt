@@ -83,7 +83,7 @@ async fn Exec::run(
   if args.base_url is Some(base_url) {
     command_args.push("--config")
     command_args.push(
-      "openai_base_url=\{to_toml_value_(ConfigString(base_url), "openai_base_url")}",
+      "openai_base_url=\{to_toml_value_(Json::string(base_url), "openai_base_url")}",
     )
   }
   if args.model is Some(model) {

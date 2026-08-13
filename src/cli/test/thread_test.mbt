@@ -283,17 +283,17 @@ async test "Client run - passes approvalPolicy to exec" {
 async test "Client run - passes ClientOptions config overrides as TOML flags" {
   with_cli_fixture(async fn(fixture) {
     let config : ConfigObject = {
-      "approval_policy": @codex.ConfigString("never"),
-      "sandbox_workspace_write": @codex.ConfigObject({
-        "network_access": @codex.ConfigBool(true),
-      }),
-      "retry_budget": @codex.ConfigInt(3),
-      "tool_rules": @codex.ConfigObject({
-        "allow": @codex.ConfigArray([
-          @codex.ConfigString("git status"),
-          @codex.ConfigString("git diff"),
-        ]),
-      }),
+      "approval_policy": "never",
+      "sandbox_workspace_write": { "network_access": true },
+      "retry_budget": 3,
+      "hooks": {
+        "PreToolUse": [
+          {
+            "matcher": "shell",
+            "hooks": [{ "type": "command", "command": "./check.sh" }],
+          },
+        ],
+      },
     }
     let client = Client::Client(
       options=ClientOptions::ClientOptions(
@@ -307,7 +307,7 @@ async test "Client run - passes ClientOptions config overrides as TOML flags" {
     client.start_thread().run(@codex.Prompt("apply config")) |> ignore
     json_inspect(values_after(fixture.recorded_lines("args", 1), "--config"), content=[
       "approval_policy=\"never\"", "sandbox_workspace_write.network_access=true",
-      "retry_budget=3", "tool_rules.allow=[\"git status\", \"git diff\"]",
+      "retry_budget=3", "hooks.PreToolUse=[{matcher = \"shell\", hooks = [{type = \"command\", command = \"./check.sh\"}]}]",
     ])
   })
 }
@@ -316,9 +316,7 @@ async test "Client run - passes ClientOptions config overrides as TOML flags" {
 /// Upstream test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/run.test.ts#L453
 async test "Client run - lets thread options override ClientOptions config" {
   with_cli_fixture(async fn(fixture) {
-    let config : ConfigObject = {
-      "approval_policy": @codex.ConfigString("never"),
-    }
+    let config : ConfigObject = { "approval_policy": "never" }
     let client = Client::Client(
       options=ClientOptions::ClientOptions(
         executable_path_override=fixture.executable,
