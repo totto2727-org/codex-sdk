@@ -6,7 +6,7 @@
 
 ///|
 /// Runtime difference: MoonBit resolves the unqualified `codex` executable through PATH.
-test "CodexExec path - falls back to the PATH executable" {
-  let exec = CodexExec::CodexExec(None, None, None)
+test "Exec path - falls back to the PATH executable" {
+  let exec = Exec::Exec(None, None, None)
   inspect(exec.executable_path.to_string(), content="codex")
 }

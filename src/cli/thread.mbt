@@ -57,8 +57,8 @@ pub(all) enum Input {
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L40-L45
 pub struct Thread {
-  priv exec : CodexExec
-  priv options : CodexOptions
+  priv exec : Exec
+  priv client_options : ClientOptions
   priv mut id_value : String?
   priv thread_options : ThreadOptions
 }
@@ -76,12 +76,12 @@ pub fn Thread::id(self : Thread) -> String? {
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L52-L63
 fn Thread::Thread(
-  exec : CodexExec,
-  options : CodexOptions,
+  exec : Exec,
+  client_options : ClientOptions,
   thread_options : ThreadOptions,
   id? : String,
 ) -> Thread {
-  { exec, options, id_value: id, thread_options }
+  { exec, client_options, id_value: id, thread_options }
 }
 
 ///| Runs one turn and forwards each structured event as it is produced.
@@ -116,29 +116,29 @@ async fn Thread::run_streamed_internal(
   turn_options : TurnOptions,
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
-  let schema_file = create_output_schema_file(turn_options.output_schema)
+  let schema_file = create_output_schema_file_(turn_options.output_schema)
   let normalized = normalize_input(input)
-  let options = self.thread_options
+  let thread_options = self.thread_options
   let stop_requested = Ref(false)
   let result = Ok(
     self.exec.run(
       {
         input: normalized.prompt,
-        base_url: self.options.base_url,
-        api_key: self.options.api_key,
+        base_url: self.client_options.base_url,
+        api_key: self.client_options.api_key,
         thread_id: self.id_value,
         images: normalized.images,
-        model: options.model,
-        sandbox_mode: options.sandbox_mode,
-        working_directory: options.working_directory,
-        additional_directories: options.additional_directories,
-        skip_git_repo_check: options.skip_git_repo_check,
+        model: thread_options.model,
+        sandbox_mode: thread_options.sandbox_mode,
+        working_directory: thread_options.working_directory,
+        additional_directories: thread_options.additional_directories,
+        skip_git_repo_check: thread_options.skip_git_repo_check,
         output_schema_file: schema_file.schema_path,
-        model_reasoning_effort: options.model_reasoning_effort,
-        network_access_enabled: options.network_access_enabled,
-        web_search_mode: options.web_search_mode,
-        web_search_enabled: options.web_search_enabled,
-        approval_policy: options.approval_policy,
+        model_reasoning_effort: thread_options.model_reasoning_effort,
+        network_access_enabled: thread_options.network_access_enabled,
+        web_search_mode: thread_options.web_search_mode,
+        web_search_enabled: thread_options.web_search_enabled,
+        approval_policy: thread_options.approval_policy,
       },
       async fn(event) {
         if event is ThreadStarted(started) {
@@ -154,7 +154,7 @@ async fn Thread::run_streamed_internal(
   ) catch {
     error => Err(error)
   }
-  @async.protect_from_cancel(async fn() { schema_file.cleanup() })
+  @async.protect_from_cancel(async fn() { schema_file.cleanup_() })
   match result {
     Ok(_) => ()
     Err(error) =>
@@ -206,7 +206,7 @@ pub async fn Thread::run(
     }
   })
   if turn_failure is Some(error) {
-    raise CodexSdkError::TurnFailed(message=error.message)
+    raise SdkError::TurnFailed(message=error.message)
   }
   { items: ReadOnlyArray::from_array(items), final_response, usage }
 }

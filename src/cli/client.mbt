@@ -4,25 +4,26 @@
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L6-L13
-pub struct Codex {
-  priv exec : CodexExec
-  priv options : CodexOptions
+pub struct Client {
+  priv exec : Exec
+  // Retained because each turn reads the client-wide base URL and API key.
+  priv client_options : ClientOptions
 }
 
 ///| Constructs a Codex client.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L15-L19
-pub fn Codex::Codex(
-  options? : CodexOptions = CodexOptions::CodexOptions(),
-) -> Codex {
+pub fn Client::Client(
+  options? : ClientOptions = ClientOptions::ClientOptions(),
+) -> Client {
   {
-    exec: CodexExec::CodexExec(
-      options.codex_path_override,
+    exec: Exec::Exec(
+      options.executable_path_override,
       options.env,
       options.config,
     ),
-    options,
+    client_options: options,
   }
 }
 
@@ -30,21 +31,21 @@ pub fn Codex::Codex(
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L21-L27
-pub fn Codex::start_thread(
-  self : Codex,
+pub fn Client::start_thread(
+  self : Client,
   options? : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
-  Thread::Thread(self.exec, self.options, options)
+  Thread::Thread(self.exec, self.client_options, options)
 }
 
 ///| Resumes a persisted conversation by thread identifier.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L29-L38
-pub fn Codex::resume_thread(
-  self : Codex,
+pub fn Client::resume_thread(
+  self : Client,
   id : String,
   options? : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
-  Thread::Thread(self.exec, self.options, options, id~)
+  Thread::Thread(self.exec, self.client_options, options, id~)
 }

@@ -1,13 +1,13 @@
 // Direct port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts
 // allow: SIZE_OK — this file intentionally preserves the upstream exec.ts responsibility boundary.
 
-///| Mirrors CodexExecArgs from the upstream implementation.
+///| Mirrors ExecArgs from the upstream implementation.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L10-L41
 
 ///|
 /// MoonBit uses Path for filesystem values and task cancellation instead of an AbortSignal field.
-priv struct CodexExecArgs {
+priv struct ExecArgs {
   input : String
   base_url : String?
   api_key : String?
@@ -26,18 +26,6 @@ priv struct CodexExecArgs {
   approval_policy : ApprovalMode?
 }
 
-///| Mirrors the upstream internal originator variable.
-
-///|
-/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L43-L45
-const INTERNAL_ORIGINATOR_ENV : String = "CODEX_INTERNAL_ORIGINATOR_OVERRIDE"
-
-// Type/language difference: the originator identifies this MoonBit port instead of the TypeScript SDK.
-// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L43-L45
-
-///|
-const MOONBIT_SDK_ORIGINATOR : String = "codex_sdk_mbt"
-
 ///| Executes the Codex CLI and streams its JSONL output.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L63-L67
@@ -46,10 +34,10 @@ const MOONBIT_SDK_ORIGINATOR : String = "codex_sdk_mbt"
 
 ///|
 /// Upstream path type and bundled-directory resolution: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L58-L65 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L412-L430
-struct CodexExec {
+struct Exec {
   executable_path : @path.Path
   env_override : Map[String, String]?
-  config_overrides : CodexConfigObject?
+  config : ConfigObject?
 }
 
 ///| Constructs the process adapter used by a Codex client.
@@ -58,17 +46,17 @@ struct CodexExec {
 
 ///|
 /// Runtime difference: MoonBit packages have no Node optional-package resolution context, so an omitted override resolves `codex` through PATH.
-fn CodexExec::CodexExec(
+fn Exec::Exec(
   executable_path : @path.Path?,
   env : Map[String, String]?,
-  config_overrides : CodexConfigObject?,
-) -> CodexExec {
+  config : ConfigObject?,
+) -> Exec {
   {
     // Runtime default-resolution difference: the upstream implementation resolves its npm platform package and bundled executable, whereas MoonBit resolves `codex` through the process PATH when no override is supplied.
     // Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L69-L81 and https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L334-L410
     executable_path: executable_path.unwrap_or(@path.Path("codex")),
     env_override: env,
-    config_overrides,
+    config,
   }
 }
 
@@ -80,14 +68,14 @@ fn CodexExec::CodexExec(
 
 ///|
 /// Cancellation type difference: cancelling the owning MoonBit task replaces the upstream AbortSignal.
-async fn CodexExec::run(
-  self : CodexExec,
-  args : CodexExecArgs,
+async fn Exec::run(
+  self : Exec,
+  args : ExecArgs,
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let command_args = ["exec", "--experimental-json"]
-  if self.config_overrides is Some(config) {
-    for item in serialize_config_overrides(config) {
+  if self.config is Some(config) {
+    for item in serialize_config_overrides_(config) {
       command_args.push("--config")
       command_args.push(item)
     }
@@ -95,7 +83,7 @@ async fn CodexExec::run(
   if args.base_url is Some(base_url) {
     command_args.push("--config")
     command_args.push(
-      "openai_base_url=\{to_toml_value(ConfigString(base_url), "openai_base_url")}",
+      "openai_base_url=\{to_toml_value_(Json::string(base_url), "openai_base_url")}",
     )
   }
   if args.model is Some(model) {
@@ -164,13 +152,12 @@ async fn CodexExec::run(
     None => Map([])
   }
   let inherited_originator = if self.env_override is None {
-    @env.get_env_var(INTERNAL_ORIGINATOR_ENV)
+    @env.get_env_var(ORIGINATOR_ENV_)
   } else {
     None
   }
-  if environment.get(INTERNAL_ORIGINATOR_ENV) is None &&
-    inherited_originator is None {
-    environment.set(INTERNAL_ORIGINATOR_ENV, MOONBIT_SDK_ORIGINATOR)
+  if environment.get(ORIGINATOR_ENV_) is None && inherited_originator is None {
+    environment.set(ORIGINATOR_ENV_, MOONBIT_SDK_ORIGINATOR_)
   }
   if args.api_key is Some(value) {
     environment.set("CODEX_API_KEY", value)
@@ -199,122 +186,5 @@ async fn CodexExec::run(
     @agent_cli.RunResult::Completed | @agent_cli.RunResult::Stopped => ()
     @agent_cli.RunResult::Failed(code~, stderr~) =>
       raise ExecFailed(code~, stderr~)
-  }
-}
-
-///| Serializes global config overrides before per-thread arguments.
-
-///|
-/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L246-L250
-fn serialize_config_overrides(
-  config : CodexConfigObject,
-) -> Array[String] raise CodexSdkError {
-  let overrides : Array[String] = []
-  flatten_config_overrides(ConfigObject(config), "", overrides)
-  overrides
-}
-
-///| Flattens nested config objects into dotted CLI override paths.
-
-///|
-/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L252-L290
-fn flatten_config_overrides(
-  value : CodexConfigValue,
-  prefix : String,
-  overrides : Array[String],
-) -> Unit raise CodexSdkError {
-  match value {
-    ConfigObject(object) => {
-      if prefix == "" && object.is_empty() {
-        return
-      }
-      if prefix != "" && object.is_empty() {
-        overrides.push("\{prefix}={}")
-        return
-      }
-      for key, child in object {
-        guard key != "" else {
-          raise InvalidConfig(
-            path=prefix,
-            message="Codex config override keys must be non-empty strings",
-          )
-        }
-        let path = if prefix == "" { key } else { "\{prefix}.\{key}" }
-        match child {
-          ConfigObject(_) => flatten_config_overrides(child, path, overrides)
-          _ => overrides.push("\{path}=\{to_toml_value(child, path)}")
-        }
-      }
-    }
-    _ =>
-      if prefix == "" {
-        raise InvalidConfig(
-          path="",
-          message="Codex config overrides must be a plain object",
-        )
-      } else {
-        overrides.push("\{prefix}=\{to_toml_value(value, prefix)}")
-      }
-  }
-}
-
-///| Converts one config value to the TOML literal accepted by `--config`.
-
-///|
-/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L292-L323
-fn to_toml_value(
-  value : CodexConfigValue,
-  path : String,
-) -> String raise CodexSdkError {
-  match value {
-    ConfigString(text) => Json::string(text).stringify()
-    ConfigInt(number) => number.to_string()
-    ConfigDouble(number) => {
-      guard !number.is_nan() && !number.is_inf() else {
-        raise InvalidConfig(
-          path~,
-          message="Codex config override must be a finite number",
-        )
-      }
-      number.to_string()
-    }
-    ConfigBool(value) => if value { "true" } else { "false" }
-    ConfigArray(values) =>
-      "[\{values.mapi((index, item) => to_toml_value(item, "\{path}[\{index}]")).join(", ")}]"
-    ConfigObject(object) => {
-      let parts : Array[String] = []
-      for key, child in object {
-        guard key != "" else {
-          raise InvalidConfig(
-            path~,
-            message="Codex config override keys must be non-empty strings",
-          )
-        }
-        parts.push(
-          "\{format_toml_key(key)} = \{to_toml_value(child, "\{path}.\{key}")}",
-        )
-      }
-      "{\{parts.join(", ")}}"
-    }
-  }
-}
-
-///| Formats a TOML key exactly as the upstream TOML_BARE_KEY branch.
-
-///|
-/// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L325-L328
-fn format_toml_key(key : String) -> String {
-  let is_bare = key
-    .iter()
-    .all(char => {
-      char.is_ascii_alphabetic() ||
-      char.is_ascii_digit() ||
-      char == '-' ||
-      char == '_'
-    })
-  if is_bare {
-    key
-  } else {
-    Json::string(key).stringify()
   }
 }

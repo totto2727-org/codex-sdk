@@ -11,6 +11,7 @@ import {
   "totto2727/agent-core-sdk/cli" @agent_cli,
   "totto2727/copy",
   "totto2727/lens",
+  "totto2727/x/json" @x_json,
 }
 
 import {

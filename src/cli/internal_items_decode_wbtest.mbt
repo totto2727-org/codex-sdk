@@ -3,7 +3,7 @@
 // Item shapes under test: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 
 ///|
-fn item_decode_error(source : String) -> String {
+fn item_decode_error_(source : String) -> String {
   try {
     let item : ThreadItem = @json.from_json(@json.parse(source))
     item |> ignore
@@ -60,6 +60,7 @@ test "MoonBit item decoder - decodes command executions" {
       inspect(item.aggregated_output, content="/tmp\n")
       assert_eq(item.exit_code, Some(0))
       assert_eq(item.status, Completed)
+      json_inspect(item.status.to_json(), content="completed")
     }
     _ => fail("expected command execution")
   }
@@ -93,6 +94,11 @@ test "MoonBit item decoder - decodes file changes" {
       assert_eq(item.changes[0].kind, Add)
       assert_eq(item.changes[1].kind, Delete)
       assert_eq(item.changes[2].kind, Update)
+      json_inspect(item.status.to_json(), content="failed")
+      json_inspect(item.changes[0].to_json(), content={
+        "path": "new.txt",
+        "kind": "add",
+      })
     }
     _ => fail("expected file change")
   }
@@ -125,6 +131,12 @@ test "MoonBit item decoder - decodes successful MCP tool calls" {
               inspect(meta.stringify(), content="{\"source\":\"official\"}")
             None => fail("expected MCP result metadata")
           }
+          assert_eq(
+            result.to_json(),
+            @json.parse(
+              "{\"content\":[{\"type\":\"text\",\"text\":\"result\"}],\"_meta\":{\"source\":\"official\"},\"structured_content\":{\"count\":1}}",
+            ),
+          )
         }
         None => fail("expected MCP result")
       }
@@ -145,7 +157,10 @@ test "MoonBit item decoder - decodes failed MCP tool calls" {
       assert_eq(item.status, McpFailed)
       assert_eq(item.result, None)
       match item.error {
-        Some(error) => inspect(error.message, content="unavailable")
+        Some(error) => {
+          inspect(error.message, content="unavailable")
+          json_inspect(error.to_json(), content={ "message": "unavailable" })
+        }
         None => fail("expected MCP error")
       }
     }
@@ -183,6 +198,10 @@ test "MoonBit item decoder - decodes todo lists" {
       inspect(item.items[0].text, content="port SDK")
       assert_true(item.items[0].completed)
       assert_false(item.items[1].completed)
+      json_inspect(item.items[0].to_json(), content={
+        "text": "port SDK",
+        "completed": true,
+      })
     }
     _ => fail("expected todo list")
   }
@@ -207,7 +226,7 @@ test "MoonBit item decoder - decodes error items" {
 ///|
 test "MoonBit item decoder - rejects unknown item types" {
   inspect(
-    item_decode_error("{\"id\":\"unknown-1\",\"type\":\"unknown\"}"),
+    item_decode_error_("{\"id\":\"unknown-1\",\"type\":\"unknown\"}"),
     content="unsupported thread item type: unknown",
   )
 }
@@ -215,7 +234,7 @@ test "MoonBit item decoder - rejects unknown item types" {
 ///|
 test "MoonBit item decoder - rejects unknown item statuses" {
   inspect(
-    item_decode_error(
+    item_decode_error_(
       "{\"id\":\"command-1\",\"type\":\"command_execution\",\"command\":\"pwd\",\"aggregated_output\":\"\",\"exit_code\":0,\"status\":\"queued\"}",
     ),
     content="unsupported command execution status: queued",
@@ -225,12 +244,12 @@ test "MoonBit item decoder - rejects unknown item statuses" {
 ///|
 test "MoonBit item decoder - rejects missing required fields" {
   inspect(
-    item_decode_error("{\"id\":\"message-1\",\"type\":\"agent_message\"}"),
+    item_decode_error_("{\"id\":\"message-1\",\"type\":\"agent_message\"}"),
     content="Missing field text",
   )
 }
 
 ///|
 test "MoonBit item decoder - rejects non-object items" {
-  inspect(item_decode_error("[]"), content="thread item must be an object")
+  inspect(item_decode_error_("[]"), content="thread item must be an object")
 }

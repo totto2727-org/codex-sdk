@@ -1,6 +1,6 @@
 name = "totto2727/codex-sdk"
 
-version = "0.2.1"
+version = "0.4.0"
 
 readme = "README.mbt.md"
 
@@ -21,7 +21,8 @@ import {
   "moonbitlang/async@0.20.3",
   "totto2727/agent-core-sdk@0.1.1",
   "totto2727/copy@0.2.0",
-  "totto2727/lens@0.4.0",
+  "totto2727/lens@0.4.2",
+  "totto2727/x@0.6.0",
 }
 
 source = "./src"

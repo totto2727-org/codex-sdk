@@ -100,7 +100,7 @@ pub struct McpToolCallResult {
 /// Type difference: explicit structs replace inline TypeScript object types.
 pub struct McpToolCallError {
   message : String
-} derive(Debug, Eq, FromJson)
+} derive(Debug, Eq, FromJson, ToJson)
 
 ///| A call dispatched to an MCP server.
 
@@ -159,7 +159,7 @@ pub struct ErrorItem {
 pub struct TodoItem {
   text : String
   completed : Bool
-} derive(Debug, Eq, FromJson)
+} derive(Debug, Eq, FromJson, ToJson)
 
 ///| The agent's current running to-do list.
 

@@ -14,11 +14,11 @@ This standalone release is a breaking package-path migration. Update existing `t
 
 ```mbt
 import {
-  "totto2727/codex-sdk/cli" @codex_sdk,
+  "totto2727/codex-sdk/cli" @codex,
 }
 ```
 
-The `codex` executable must be available on `PATH` for native process execution, or supplied with `codex_path_override`.
+The `codex` executable must be available on `PATH` for native process execution, or supplied with `ClientOptions.executable_path_override`.
 
 ## Target support
 
@@ -43,10 +43,10 @@ nix develop .#ci --command codex --version
 
 ```mbt
 async fn main {
-  let codex = @codex_sdk.Codex::Codex()
-  let thread = codex.start_thread()
+  let client = @codex.Client::Client()
+  let thread = client.start_thread()
   let turn = thread.run(
-    @codex_sdk.Input::Prompt("Diagnose the test failure and propose a fix"),
+    @codex.Input::Prompt("Diagnose the test failure and propose a fix"),
   )
   println(turn.final_response)
 }
@@ -60,11 +60,11 @@ MoonBit uses an asynchronous callback in place of TypeScript's `AsyncGenerator`.
 
 ```mbt
 thread.run_streamed(
-  @codex_sdk.Input::Prompt("Diagnose the test failure"),
-  async event => {
+  @codex.Input::Prompt("Diagnose the test failure"),
+  async fn(event) {
     match event {
-      ItemCompleted(completed) => println("\{completed.item}")
-      TurnCompleted(completed) => println("\{completed.usage}")
+      @codex.ItemCompleted(completed) => println("\{completed.item}")
+      @codex.TurnCompleted(completed) => println("\{completed.usage}")
       _ => ()
     }
   },
@@ -87,8 +87,8 @@ let schema = Json::object({
   "additionalProperties": false,
 })
 let turn = thread.run(
-  Prompt("Summarize repository status"),
-  turn_options=@codex_sdk.TurnOptions::TurnOptions(output_schema=schema),
+  @codex.Input::Prompt("Summarize repository status"),
+  turn_options=@codex.TurnOptions::TurnOptions(output_schema=schema),
 )
 ```
 
@@ -98,11 +98,11 @@ The public event, item, option, thread, and turn models follow the official Type
 
 ## Agent core integration
 
-The provider depends directly on the single `totto2727/agent-core-sdk/cli` package from merged commit [`5bb57e3bb9bd5eeef2dc137f3899c13d115dc264`](https://github.com/totto2727-org/agent-core-sdk/commit/5bb57e3bb9bd5eeef2dc137f3899c13d115dc264). `CodexExec` owns Codex-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the native JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
+The provider depends directly on the single `totto2727/agent-core-sdk/cli` package from merged commit [`5bb57e3bb9bd5eeef2dc137f3899c13d115dc264`](https://github.com/totto2727-org/agent-core-sdk/commit/5bb57e3bb9bd5eeef2dc137f3899c13d115dc264). `Exec` owns Codex-specific argument construction and event conversion, while `agent_core_sdk/cli.run` owns the native JSONL process lifecycle. No target-specific `cli/native` package or backend is used.
 
 ```mermaid
 flowchart LR
-  Thread[Codex Thread] --> Exec[CodexExec]
+  Thread[Codex Thread] --> Exec[Exec]
   Exec --> Invocation[agent_cli.Invocation]
   Invocation --> Run[agent_cli.run]
   Run --> Process[codex process]
@@ -115,13 +115,13 @@ The source layout follows the upstream files using MoonBit snake-case filenames:
 
 | Upstream TypeScript   | MoonBit                  |
 | --------------------- | ------------------------ |
-| `codex.ts`            | `codex.mbt`              |
-| `codexOptions.ts`     | `codex_options.mbt`      |
+| `codex.ts`            | `client.mbt`             |
+| `codexOptions.ts`     | `client_options.mbt`     |
 | `events.ts`           | `events.mbt`             |
 | `exec.ts`             | `exec.mbt`               |
 | `index.ts`            | `index.mbt`              |
 | `items.ts`            | `items.mbt`              |
-| `outputSchemaFile.ts` | `output_schema_file.mbt` |
+| `outputSchemaFile.ts` | `internal_output_schema_file.mbt` |
 | `thread.ts`           | `thread.mbt`             |
 | `threadOptions.ts`    | `thread_options.mbt`     |
 | `turnOptions.ts`      | `turn_options.mbt`       |
