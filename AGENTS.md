@@ -4,9 +4,10 @@
 
 ```text
 src/cli/              Public Codex client, thread, event, item, and option APIs
+src/cli/README.mbt.md Canonical literate README checked as package source
 src/cli/test/         Blackbox behavior tests
 .github/workflows/    Check and Mooncakes publishing workflows
-README.mbt.md         Canonical literate README
+README.mbt.md         Relative symlink to src/cli/README.mbt.md
 README.md             Relative symlink to README.mbt.md
 moon.mod              Module metadata and dependencies
 flake.nix             Nix development shells
@@ -18,7 +19,7 @@ flake.nix             Nix development shells
 
 - Run commands from the repository root.
 - Use the preferred `wasm` target unless deliberately validating the declared `native` target.
-- Keep `README.md` as the relative symlink to `README.mbt.md`.
+- Keep the relative README symlink chain `README.md -> README.mbt.md -> src/cli/README.mbt.md`.
 - Keep public behavior documented in source `///` comments so Mooncakes renders a complete API reference.
 
 ### Standard tasks
@@ -29,6 +30,8 @@ flake.nix             Nix development shells
 - `moon test` — Run the module test suite.
 - `moon build` — Build the module.
 - `moon package --list` — Inspect files included in the Mooncakes package.
+- `moon check README.mbt.md` — Check the README's MoonBit examples.
+- `moon test README.mbt.md` — Test the README's MoonBit examples.
 
 ## Architecture
 
