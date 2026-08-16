@@ -49,16 +49,16 @@ import {
 }
 ```
 
-The following checked block is independent of the preceding turn example:
+The following complete consumer example is checked in an isolated consumer module:
 
-```mbt check
+```mbt nocheck
 ///|
 test "README configures an output schema" {
   let schema = @json.parse(
     "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"}},\"required\":[\"answer\"],\"additionalProperties\":false}",
   )
 
-  let options = TurnOptions::TurnOptions(output_schema=schema)
+  let options = @codex.TurnOptions::TurnOptions(output_schema=schema)
   assert_true(options.output_schema is Some(_))
 }
 ```

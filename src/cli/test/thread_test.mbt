@@ -833,6 +833,13 @@ async test "Client run_streamed - applies output schema turn options" {
 }
 
 ///|
+test "Client output schema - consumer uses public constructor" {
+  let schema = @json.parse("{\"type\":\"object\"}")
+  let options = @codex.TurnOptions::TurnOptions(output_schema=schema)
+  assert_true(options.output_schema is Some(_))
+}
+
+///|
 async test "Client run_streamed - cancels with output schema cleanup" {
   with_cli_fixture(async fn(fixture) {
     let environment = fixture.environment([
