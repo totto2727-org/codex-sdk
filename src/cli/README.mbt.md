@@ -10,7 +10,7 @@ Create a client and a thread, then run a prompt. The call returns a `Turn` conta
 
 ```mbt check
 ///|
-async fn run_once() -> String {
+pub async fn run_once() -> String {
   let client = Client::Client()
   let thread = client.start_thread()
   let turn = thread.run(Input::Prompt("Summarize the repository status"))
@@ -22,10 +22,11 @@ Use `run_streamed` when the application needs structured events while the turn r
 
 ```mbt check
 ///|
-async fn stream_once(thread : Thread) -> Unit {
+pub async fn stream_once(thread : Thread) -> Unit {
   thread.run_streamed(Input::Prompt("Diagnose the test failure"), async fn(
     event,
   ) {
+    @async.pause()
     match event {
       ItemCompleted(completed) => ignore(completed)
       TurnCompleted(completed) => ignore(completed)

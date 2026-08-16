@@ -32,7 +32,7 @@ The root README describes the module and links to the detailed [`cli` package RE
 - `moon check --target wasm` — Type-check the preferred target.
 - `moon check --target native` — Type-check the declared native target.
 - `moon test --target wasm` — Run the preferred-target test suite.
-- `moon test --target native` — Run native process tests; see the known flaky cases below.
+- `moon test --target native` — Run the declared native process-test target.
 - `moon build --target wasm` — Build the preferred target.
 - `moon build --target native` — Build the declared native target.
 - `moon check README.mbt.md` — Check the physical root README examples.
@@ -70,9 +70,5 @@ The root README describes the module and links to the detailed [`cli` package RE
 - Update `moon.mod` only when package metadata or runtime dependencies change; preserve unrelated existing changes in that file.
 - Add test-only dependencies to the relevant `moon.pkg` with `for "test"` or `for "wbtest"`; do not broaden runtime imports for documentation examples.
 - Run formatting and both target checks after documentation or public API changes, then verify the README links, package list, and archive contents.
-
-### Known native test flakiness
-
-On 2026-08-16, `moon test --target wasm` passed 32/32, while the native suite passed 67/71. The four observed native failures were `Client run - throws TurnFailed on turn failures` (received `timed out` instead of `rate limit exceeded`), `Client run_streamed - cancels with output schema cleanup` (timeout), `Client run - cancels during execution` (timeout), and `Exec run - rejects when exit happens before stdout closes` (received `unexpected:TimeoutError` instead of `17:early failure`). Treat these as known timing-sensitive native harness failures, rerun them before attributing a documentation change to a product regression, and report any new failure separately.
 
 _This AGENTS.md was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [AGENTS template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/agents/template.md)._
