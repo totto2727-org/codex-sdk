@@ -49,7 +49,7 @@ import {
 }
 ```
 
-The following complete consumer example is checked in an isolated consumer module:
+The following complete consumer example was verified in an isolated consumer during validation:
 
 ```mbt nocheck
 ///|
