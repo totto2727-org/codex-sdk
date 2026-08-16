@@ -9,16 +9,16 @@ This document is canonical `README.mbt.md`; maintain `README.md` as the relative
 Import the `cli` package, create a client, and run a turn on a persisted thread:
 
 ```mbt nocheck
+///|
 import {
   "totto2727/codex-sdk/cli" @codex,
 }
 
+///|
 async fn main {
   let client = @codex.Client::Client()
   let thread = client.start_thread()
-  let turn = thread.run(
-    @codex.Input::Prompt("Summarize the repository status"),
-  )
+  let turn = thread.run(@codex.Input::Prompt("Summarize the repository status"))
   println(turn.final_response)
 }
 ```
@@ -40,18 +40,15 @@ thread.run_streamed(
 
 Cancelling the MoonBit task that calls `Thread::run` or `Thread::run_streamed` terminates the Codex subprocess after temporary output-schema cleanup.
 
-Pass `TurnOptions` to require a JSON response matching an output schema. Import `moonbitlang/core/json` as `@json` and this package as `@codex` in the consumer package:
+Pass `TurnOptions` to require a JSON response matching an output schema. The complete consumer example below was verified in an isolated consumer during validation:
 
 ```mbt nocheck
+///|
 import {
-  "moonbitlang/core/json" @json,
+  "moonbitlang/core/json",
   "totto2727/codex-sdk/cli" @codex,
 }
-```
 
-The following complete consumer example was verified in an isolated consumer during validation:
-
-```mbt nocheck
 ///|
 test "README configures an output schema" {
   let schema = @json.parse(
