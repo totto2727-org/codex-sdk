@@ -40,19 +40,27 @@ thread.run_streamed(
 
 Cancelling the MoonBit task that calls `Thread::run` or `Thread::run_streamed` terminates the Codex subprocess after temporary output-schema cleanup.
 
-Pass `TurnOptions` to require a JSON response matching an output schema:
+Pass `TurnOptions` to require a JSON response matching an output schema. Import `moonbitlang/core/json` as `@json` and this package as `@codex` in the consumer package:
 
 ```mbt nocheck
-///|
-let schema = @json.parse(
-  "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"}},\"required\":[\"answer\"],\"additionalProperties\":false}",
-)
+import {
+  "moonbitlang/core/json" @json,
+  "totto2727/codex-sdk/cli" @codex,
+}
+```
 
+The following checked block is independent of the preceding turn example:
+
+```mbt check
 ///|
-let turn = thread.run(
-  @codex.Input::Prompt("Return the repository status"),
-  turn_options=@codex.TurnOptions::TurnOptions(output_schema=schema),
-)
+test "README configures an output schema" {
+  let schema = @json.parse(
+    "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"}},\"required\":[\"answer\"],\"additionalProperties\":false}",
+  )
+
+  let options = TurnOptions::TurnOptions(output_schema=schema)
+  assert_true(options.output_schema is Some(_))
+}
 ```
 
 ## Key features
