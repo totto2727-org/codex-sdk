@@ -30,11 +30,28 @@ thread.run_streamed(
   @codex.Input::Prompt("Diagnose the test failure"),
   async fn(event) {
     match event {
-      @codex.ItemCompleted(completed) => println("\\{completed.item}")
-      @codex.TurnCompleted(completed) => println("\\{completed.usage}")
+      @codex.ItemCompleted(completed) => println("\{completed.item}")
+      @codex.TurnCompleted(completed) => println("\{completed.usage}")
       _ => ()
     }
   },
+)
+```
+
+Cancelling the MoonBit task that calls `Thread::run` or `Thread::run_streamed` terminates the Codex subprocess after temporary output-schema cleanup.
+
+Pass `TurnOptions` to require a JSON response matching an output schema:
+
+```mbt nocheck
+///|
+let schema = @json.parse(
+  "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"}},\"required\":[\"answer\"],\"additionalProperties\":false}",
+)
+
+///|
+let turn = thread.run(
+  @codex.Input::Prompt("Return the repository status"),
+  turn_options=@codex.TurnOptions::TurnOptions(output_schema=schema),
 )
 ```
 

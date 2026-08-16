@@ -94,6 +94,17 @@ fn Thread::Thread(
 ///|
 /// Async type difference: the callback parameter replaces StreamedTurn.events because MoonBit has no AsyncGenerator.
 /// Cancelling the task that owns this call cancels the Codex subprocess after temporary output-schema cleanup.
+///
+/// ```mbt check
+/// async test "run_streamed has task-owned cancellation" {
+///   let streamed = async fn(thread : Thread) {
+///     thread.run_streamed(Input::Prompt("Cancel this turn"), async fn(_) {
+///       @async.pause()
+///     })
+///   }
+///   ignore(streamed)
+/// }
+/// ```
 pub async fn Thread::run_streamed(
   self : Thread,
   input : Input,

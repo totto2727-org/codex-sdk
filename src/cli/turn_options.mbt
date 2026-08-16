@@ -17,6 +17,14 @@ pub struct TurnOptions {
 
 ///|
 /// Type difference: MoonBit structs require a constructor to provide the upstream empty-object default.
+///
+/// ```mbt check
+/// test "TurnOptions accepts an output schema" {
+///   let schema = @json.parse("{\"type\":\"object\"}")
+///   let options = TurnOptions::TurnOptions(output_schema=schema)
+///   assert_true(options.output_schema is Some(_))
+/// }
+/// ```
 pub fn TurnOptions::TurnOptions(output_schema? : Json) -> TurnOptions {
   { output_schema, }
 }
