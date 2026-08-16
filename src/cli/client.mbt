@@ -1,6 +1,14 @@
 // Direct port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts
 
 ///| Main client for interacting with the Codex agent.
+///
+/// A client creates new persisted threads or resumes existing ones:
+///
+/// ```mbt
+/// let client = Client::Client()
+/// let thread = client.start_thread()
+/// let turn = thread.run(Input::Prompt("Summarize the repository"))
+/// ```
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L6-L13
