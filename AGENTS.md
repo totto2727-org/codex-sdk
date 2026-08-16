@@ -3,51 +3,59 @@
 ## Repository structure
 
 ```text
-src/cli/              Public Codex client, thread, event, item, and option APIs
-src/cli/README.mbt.md Canonical literate README checked as package source
-src/cli/test/         Blackbox behavior tests
+src/cli/              Published Codex client, thread, event, item, and option APIs
+src/cli/README.mbt.md Canonical package README checked in package context
+src/cli/test/         Native black-box behavior tests
 .github/workflows/    Check and Mooncakes publishing workflows
-README.mbt.md         Relative symlink to src/cli/README.mbt.md
+README.mbt.md         Physical module overview
 README.md             Relative symlink to README.mbt.md
-moon.mod              Module metadata and dependencies
-flake.nix             Nix development shells
+moon.mod              Module metadata, targets, and dependencies
+flake.nix             Reproducible development shells
 ```
+
+The root README describes the module and links to the detailed [`cli` package README](./src/cli/README.mbt.md). Do not replace the physical root `README.mbt.md` with a symlink to the package README. There is no package-level `README.md`; the package's canonical documentation is `src/cli/README.mbt.md`.
 
 ## Development commands
 
 ### Execution rules
 
 - Run commands from the repository root.
-- Use the preferred `wasm` target unless deliberately validating the declared `native` target.
-- Keep the relative README symlink chain `README.md -> README.mbt.md -> src/cli/README.mbt.md`.
-- Keep public behavior documented in source `///` comments so Mooncakes renders a complete API reference.
+- The preferred target is `wasm`; validate `native` explicitly when checking the declared secondary target.
+- Keep the root alias `README.md -> README.mbt.md` and the package README as a physical `README.mbt.md`.
+- Keep public behavior documented in source `///` comments so Mooncakes renders the generated API reference.
+- Keep provider-specific implementation details in `internal_*.mbt` files, and do not add compatibility aliases for renamed internal symbols.
 
 ### Standard tasks
 
 - `nix develop` — Enter the MoonBit development shell.
 - `moon fmt` — Format MoonBit source and literate documentation.
-- `moon check` — Type-check the module.
-- `moon test` — Run the module test suite.
-- `moon build` — Build the module.
-- `moon package --list` — Inspect files included in the Mooncakes package.
-- `moon check README.mbt.md` — Check the README's MoonBit examples.
-- `moon test README.mbt.md` — Test the README's MoonBit examples.
+- `moon check --target wasm` — Type-check the preferred target.
+- `moon check --target native` — Type-check the declared native target.
+- `moon test --target wasm` — Run the preferred-target test suite.
+- `moon test --target native` — Run native process tests; see the known flaky cases below.
+- `moon build --target wasm` — Build the preferred target.
+- `moon build --target native` — Build the declared native target.
+- `moon check README.mbt.md` — Check the physical root README examples.
+- `moon check src/cli/README.mbt.md` — Check the package README examples.
+- `moon test src/cli/README.mbt.md` — Execute the package README test examples.
+- `moon package --list` — Check the package manifest and included files.
+- `moon package` — Create `_build/publish/totto2727-codex-sdk-0.4.0.zip`.
+- `unzip -l _build/publish/totto2727-codex-sdk-0.4.0.zip` — Inspect the generated archive.
 
 ## Architecture
 
 ### Public package
 
-- `src/cli` is the published `totto2727/codex-sdk/cli` package.
+- `src/cli` publishes `totto2727/codex-sdk/cli`.
 - The public API models Codex clients, persisted threads, turns, JSONL events, thread items, and execution options.
+- `Thread::run` buffers a turn; `Thread::run_streamed` forwards typed events to an async callback.
 - The package delegates process lifecycle and JSONL transport to `totto2727/agent-core-sdk/cli`.
 
 ### Internal implementation
 
-- Put provider-specific private implementation details in `internal_*.mbt` files; do not repeat `codex` in those filenames.
+- Keep shared provider-interface files focused on common symbols; move protocol decoding, serialization, and temporary-resource helpers into `internal_*.mbt` files.
 - Name private variables, functions, methods, constants, and helper types with a trailing underscore, such as `serialize_config_overrides_` or `OutputSchemaFile_`.
-- Keep shared provider-interface files focused on common symbols and move protocol decoding, serialization, and temporary-resource helpers into `internal_*.mbt` files.
 - Use typed Lens constructors, including `custom` for matching `FromJson` and `ToJson` wire contracts. Use a raw `Lens[Json]` only for opaque protocol payloads and document that choice next to its declaration.
-- Keep public API symbols provider-neutral and do not add compatibility aliases or shims for renamed internal symbols.
 - Use `totto2727/x/json` for configuration flattening. Keep TOML literal conversion at the Codex CLI boundary until the shared JSON/TOML conversion work tracked by TOT-186 is available as a normal registry dependency.
 
 ## Development tools
@@ -59,8 +67,12 @@ flake.nix             Nix development shells
 
 ## Package-specific rules
 
-- Update `moon.mod` when package metadata or dependencies change.
-- Keep the README's Mooncakes API link pointed at the published module documentation.
-- Run `moon fmt`, `moon check`, `moon test`, `moon build`, and `moon package --list` after public API or documentation changes.
+- Update `moon.mod` only when package metadata or runtime dependencies change; preserve unrelated existing changes in that file.
+- Add test-only dependencies to the relevant `moon.pkg` with `for "test"` or `for "wbtest"`; do not broaden runtime imports for documentation examples.
+- Run formatting and both target checks after documentation or public API changes, then verify the README links, package list, and archive contents.
+
+### Known native test flakiness
+
+On 2026-08-16, `moon test --target wasm` passed 32/32, while the native suite passed 67/71. The four observed native failures were `Client run - throws TurnFailed on turn failures` (received `timed out` instead of `rate limit exceeded`), `Client run_streamed - cancels with output schema cleanup` (timeout), `Client run - cancels during execution` (timeout), and `Exec run - rejects when exit happens before stdout closes` (received `unexpected:TimeoutError` instead of `17:early failure`). Treat these as known timing-sensitive native harness failures, rerun them before attributing a documentation change to a product regression, and report any new failure separately.
 
 _This AGENTS.md was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [AGENTS template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/agents/template.md)._

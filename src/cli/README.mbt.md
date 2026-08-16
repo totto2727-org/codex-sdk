@@ -1,77 +1,55 @@
-# Codex SDK for MoonBit
+# Codex SDK CLI for MoonBit
 
-Embed the Codex agent in MoonBit applications and workflows through the Codex CLI.
+Use the `totto2727/codex-sdk/cli` package to start or resume Codex CLI conversations, run buffered or streamed turns, and inspect typed events and items.
 
-This document is canonical `README.mbt.md`; maintain `README.md` as the relative symlink `README.md -> README.mbt.md`.
+This document is the canonical package README; the root `README.md` alias points to the physical module overview.
 
 ## Usage
 
-Import the `cli` package, create a client, and run a turn on a persisted thread:
+Create a client and a thread, then run a prompt. The call returns a `Turn` containing the final response and token usage:
 
-```mbt nocheck
+```mbt check
 ///|
-import {
-  "totto2727/codex-sdk/cli" @codex,
-}
-
-///|
-async fn main {
-  let client = @codex.Client::Client()
+async fn run_once() -> String {
+  let client = Client::Client()
   let thread = client.start_thread()
-  let turn = thread.run(@codex.Input::Prompt("Summarize the repository status"))
-  println(turn.final_response)
+  let turn = thread.run(Input::Prompt("Summarize the repository status"))
+  turn.final_response
 }
 ```
 
-Use `Thread::run_streamed` when the application needs structured events while the turn is running:
+Use `run_streamed` when the application needs structured events while the turn runs. MoonBit delivers each event to an async callback:
 
-```mbt nocheck
-thread.run_streamed(
-  @codex.Input::Prompt("Diagnose the test failure"),
-  async fn(event) {
+```mbt check
+///|
+async fn stream_once(thread : Thread) -> Unit {
+  thread.run_streamed(Input::Prompt("Diagnose the test failure"), async fn(
+    event,
+  ) {
     match event {
-      @codex.ItemCompleted(completed) => println("\{completed.item}")
-      @codex.TurnCompleted(completed) => println("\{completed.usage}")
+      ItemCompleted(completed) => ignore(completed)
+      TurnCompleted(completed) => ignore(completed)
       _ => ()
     }
-  },
-)
-```
-
-Cancelling the MoonBit task that calls `Thread::run` or `Thread::run_streamed` terminates the Codex subprocess after temporary output-schema cleanup.
-
-Pass `TurnOptions` to require a JSON response matching an output schema. The complete consumer example below was verified in an isolated consumer during validation:
-
-```mbt nocheck
-///|
-import {
-  "moonbitlang/core/json",
-  "totto2727/codex-sdk/cli" @codex,
-}
-
-///|
-test "README configures an output schema" {
-  let schema = @json.parse(
-    "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"}},\"required\":[\"answer\"],\"additionalProperties\":false}",
-  )
-
-  let options = @codex.TurnOptions::TurnOptions(output_schema=schema)
-  assert_true(options.output_schema is Some(_))
+  })
 }
 ```
+
+Cancelling the MoonBit task that owns `Thread::run` or `Thread::run_streamed` terminates the Codex subprocess after temporary output-schema cleanup.
 
 ## Key features
 
-- Persistent threads with `Client::start_thread` and `Client::resume_thread`
-- Buffered turns with `Thread::run` and event callbacks with `Thread::run_streamed`
-- Typed event and item models for Codex JSONL output
-- Per-turn JSON output schemas through `TurnOptions`
-- Native and Wasm package targets with the Codex process supplied by the host runtime
+- `Client::start_thread` creates a new persisted conversation.
+- `Client::resume_thread` continues a conversation by its persisted identifier.
+- `Thread::run` buffers completed items, the final response, and token usage.
+- `Thread::run_streamed` forwards typed `ThreadEvent` values to an async callback.
+- `TurnOptions` writes an optional JSON output schema for the Codex CLI.
+- `ClientOptions` and `ThreadOptions` configure executable, environment, sandbox, approval, model, and search behavior.
 
 ## Prerequisites
 
-- **MoonBit**: Use a MoonBit toolchain compatible with the package version.
-- **Codex CLI**: Make `codex` available on `PATH`, or provide an explicit executable path in `ClientOptions`.
+- **MoonBit**: Use a MoonBit toolchain compatible with this package version.
+- **Codex CLI**: Make `codex` available on `PATH`, or set `ClientOptions.executable_path_override`.
 - **Codex authentication**: Configure the Codex CLI using its supported login or API-key flow.
 
 ## Setup
@@ -82,29 +60,65 @@ Add the package to a MoonBit project:
 moon add totto2727/codex-sdk@0.4.0
 ```
 
-The package imports as `totto2727/codex-sdk/cli`.
-
-## API
-
-See the [totto2727/codex-sdk API reference on Mooncakes](https://mooncakes.io/docs/totto2727/codex-sdk).
-
-The canonical API package exposes the same constructors used by the application examples:
+Import it as `totto2727/codex-sdk/cli`:
 
 ```mbt check
 ///|
-test "README starts an unpersisted thread" {
+test "a new thread starts without an identifier" {
   let client = Client::Client()
   let thread = client.start_thread()
   debug_inspect(thread.id(), content="None")
 }
 ```
 
+## API
+
+The [totto2727/codex-sdk API reference on Mooncakes](https://mooncakes.io/docs/totto2727/codex-sdk) is the canonical generated API index. The primary public surfaces are:
+
+### `Client` and `ClientOptions`
+
+`Client` owns shared options and starts or resumes persisted threads. `ClientOptions` controls the executable path, environment, and configuration overrides.
+
+```mbt check
+///|
+test "client options construct a client" {
+  let options = ClientOptions::ClientOptions()
+  let client = Client::Client(options~)
+  let thread = client.start_thread()
+  debug_inspect(thread.id(), content="None")
+}
+```
+
+### `Thread`, `ThreadOptions`, and `TurnOptions`
+
+`ThreadOptions` configures a thread's model, sandbox, approval policy, and web search mode. `TurnOptions` adds a per-turn JSON output schema. A thread may be resumed with `Client::resume_thread` after Codex has assigned an identifier.
+
+```mbt check
+///|
+test "thread and turn options retain their configuration" {
+  let thread_options = ThreadOptions::ThreadOptions(
+    model="gpt-5.6",
+    sandbox_mode=ReadOnly,
+    approval_policy=Never,
+  )
+  assert_true(thread_options.model is Some(_))
+
+  let schema = @json.parse("{\"type\":\"object\"}")
+  let turn_options = TurnOptions::TurnOptions(output_schema=schema)
+  assert_true(turn_options.output_schema is Some(_))
+}
+```
+
+### `ThreadEvent` and `ThreadItem`
+
+Streamed turns expose typed lifecycle events such as `ThreadStarted`, `TurnCompleted`, and `ItemCompleted`; completed items carry agent messages, reasoning, command executions, file changes, MCP calls, web searches, errors, and to-do lists.
+
 ## Development
 
-For repository structure and development commands, see [AGENTS.md](./AGENTS.md).
+For repository structure, implementation rules, and complete validation commands, see [AGENTS.md](../../AGENTS.md).
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](../../LICENSE)
 
 _This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
