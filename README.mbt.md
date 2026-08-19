@@ -2,7 +2,7 @@
 
 Embed the Codex agent in MoonBit applications through the published `cli` package. This module wraps the Codex CLI, exposes typed threads, turns, events, items, and options, and delegates process lifecycle management to `totto2727/agent-core-sdk/cli`.
 
-This document is the canonical module overview. The package-specific API guide is [`src/cli/README.mbt.md`](./src/cli/README.mbt.md).
+See the package-specific API guide at [`src/cli/README.mbt.md`](./src/cli/README.mbt.md).
 
 ## Usage
 

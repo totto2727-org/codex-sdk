@@ -2,7 +2,7 @@
 
 Use the `totto2727/codex-sdk/cli` package to start or resume Codex CLI conversations, run buffered or streamed turns, and inspect typed events and items.
 
-This document is the canonical package README; the root `README.md` alias points to the physical module overview.
+See the [module overview](../../README.md) for installation, prerequisites, and the package entry point.
 
 ## Usage
 
