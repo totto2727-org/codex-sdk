@@ -47,6 +47,7 @@ pub(all) enum UserInput {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of the TypeScript string-or-array union.
+/// `UserInputs` joins text entries with a blank line and passes local images separately to the CLI.
 pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
@@ -92,6 +93,18 @@ fn Thread::Thread(
 
 ///|
 /// Async type difference: the callback parameter replaces StreamedTurn.events because MoonBit has no AsyncGenerator.
+/// Cancelling the task that owns this call cancels the Codex subprocess after temporary output-schema cleanup.
+///
+/// ```mbt check
+/// async test "run_streamed has task-owned cancellation" {
+///   let streamed = async fn(thread : Thread) {
+///     thread.run_streamed(Input::Prompt("Cancel this turn"), async fn(_) {
+///       @async.pause()
+///     })
+///   }
+///   ignore(streamed)
+/// }
+/// ```
 pub async fn Thread::run_streamed(
   self : Thread,
   input : Input,
@@ -170,6 +183,7 @@ async fn Thread::run_streamed_internal(
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L116-L140
+/// The returned `final_response` is the text from the last completed agent-message item, and `usage` is populated from the completed-turn event.
 pub async fn Thread::run(
   self : Thread,
   input : Input,

@@ -832,6 +832,43 @@ async test "Client run_streamed - applies output schema turn options" {
   })
 }
 
+///|
+test "Client output schema - consumer uses public constructor" {
+  let schema = @json.parse("{\"type\":\"object\"}")
+  let options = @codex.TurnOptions::TurnOptions(output_schema=schema)
+  assert_true(options.output_schema is Some(_))
+}
+
+///|
+async test "Client run_streamed - cancels with output schema cleanup" {
+  with_cli_fixture(async fn(fixture) {
+    let environment = fixture.environment([
+      completed_events("thread-1", "item-1", "Structured response"),
+    ])
+    environment.set("FAKE_CODEX_PAUSE", "1")
+    let schema = @json.parse("{\"type\":\"object\"}")
+    let thread = fixture.client(environment).start_thread()
+    @async.with_task_group(async fn(group) {
+      let task = group.spawn(
+        async fn() {
+          thread.run_streamed(
+            @codex.Prompt("structured"),
+            async fn(_) { @async.pause() },
+            turn_options=TurnOptions::TurnOptions(output_schema=schema),
+          )
+        },
+        allow_failure=true,
+      )
+      wait_for_test_file("\{fixture.record_directory}/schema_path.1")
+      let schema_path = fixture.recorded_text("schema_path", 1)
+      assert_true(@fs.exists(schema_path))
+      task.cancel()
+      assert_true(wait_for_cancellation(task))
+      assert_eq(@fs.exists(schema_path), false)
+    })
+  })
+}
+
 // Direct test port of https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/tests/abort.test.ts
 
 // MoonBit-only deterministic synchronization for the upstream setTimeout-based execution test.

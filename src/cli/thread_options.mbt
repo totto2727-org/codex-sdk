@@ -135,6 +135,20 @@ pub struct ThreadOptions {
 
 ///|
 /// Type difference: MoonBit structs require a constructor to provide the upstream empty-object defaults.
+///
+/// ```mbt check
+/// test "ThreadOptions configures a thread" {
+///   let options = ThreadOptions::ThreadOptions(
+///     model="gpt-5.6",
+///     sandbox_mode=ReadOnly,
+///     approval_policy=Never,
+///   )
+///   match options.model {
+///     Some(model) => assert_eq(model, "gpt-5.6")
+///     None => fail("model is required for this example")
+///   }
+/// }
+/// ```
 pub fn ThreadOptions::ThreadOptions(
   model? : String,
   sandbox_mode? : SandboxMode,

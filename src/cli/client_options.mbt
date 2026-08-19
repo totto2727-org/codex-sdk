@@ -13,10 +13,15 @@ pub type ConfigObject = Map[String, Json]
 ///|
 /// Type difference: filesystem strings are represented by Path.
 pub struct ClientOptions {
+  /// Optional executable path. When omitted, the `codex` executable is resolved through `PATH`.
   executable_path_override : @path.Path?
+  /// Optional API base URL forwarded to the Codex CLI configuration.
   base_url : String?
+  /// Optional API key supplied to the Codex CLI process as `CODEX_API_KEY`.
   api_key : String?
+  /// Optional JSON-shaped configuration values flattened into Codex CLI `--config` overrides.
   config : ConfigObject?
+  /// Optional process environment override. When supplied, only this map is used as the process environment.
   env : Map[String, String]?
 } derive(Eq)
 
