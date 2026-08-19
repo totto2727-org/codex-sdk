@@ -6,7 +6,7 @@ See the package-specific API guide at [`src/cli/README.mbt.md`](./src/cli/README
 
 ## Usage
 
-Import the published `cli` package from a MoonBit application:
+Ask Codex to summarize a repository and return the completed response:
 
 ```mbt check
 ///|
@@ -15,10 +15,13 @@ import {
 }
 
 ///|
-test "the module exposes the CLI package" {
+pub async fn summarize_repository() -> String {
   let client = @codex.Client::Client()
   let thread = client.start_thread()
-  debug_inspect(thread.id(), content="None")
+  let turn = thread.run(
+    @codex.Input::Prompt("Summarize the repository status"),
+  )
+  turn.final_response
 }
 ```
 
