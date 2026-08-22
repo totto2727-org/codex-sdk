@@ -558,15 +558,10 @@ async fn create_cli_fixture() -> CliFixture {
 ///|
 async fn with_cli_fixture(run : async (CliFixture) -> Unit) -> Unit {
   let fixture = create_cli_fixture()
-  run(fixture) catch {
-    error => {
-      @async.protect_from_cancel(async fn() {
-        @fs.rmdir(fixture.root, recursive=true)
-      })
-      raise error
-    }
-  }
-  @fs.rmdir(fixture.root, recursive=true)
+  defer @async.protect_from_cancel(async fn() {
+    @fs.rmdir(fixture.root, recursive=true)
+  })
+  run(fixture)
 }
 
 ///|

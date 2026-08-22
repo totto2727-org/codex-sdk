@@ -186,7 +186,10 @@ pub impl ToJson for McpToolCallStatus with fn to_json(self) {
 
 ///|
 pub impl ToJson for FileUpdateChange with fn to_json(self) {
-  Json::object({ "path": "\{self.path}".to_json(), "kind": self.kind.to_json() })
+  Json::object({
+    "path": "\{self.path}".to_json(),
+    "kind": ToJson::to_json(self.kind),
+  })
 }
 
 ///|

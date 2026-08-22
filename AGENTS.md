@@ -39,8 +39,8 @@ The root README describes the module and links to the detailed [`cli` package RE
 - `moon check src/cli/README.mbt.md` — Check the package README examples in their containing package context.
 - `moon test src/cli` — Execute the package tests; package README examples are checked by the preceding command.
 - `moon package --list` — Check the package manifest and included files.
-- `moon package` — Create `_build/publish/totto2727-codex-sdk-0.4.0.zip`.
-- `unzip -l _build/publish/totto2727-codex-sdk-0.4.0.zip` — Inspect the generated archive.
+- `moon package` — Create `_build/publish/totto2727-codex-sdk-0.4.1.zip`.
+- `unzip -l _build/publish/totto2727-codex-sdk-0.4.1.zip` — Inspect the generated archive.
 
 ## Architecture
 

@@ -42,7 +42,7 @@ See the [`cli` package guide](./src/cli/README.mbt.md) for executable examples o
 Add the module's published package to a MoonBit project:
 
 ```bash
-moon add totto2727/codex-sdk@0.4.0
+moon add totto2727/codex-sdk@0.4.1
 ```
 
 The package imports as `totto2727/codex-sdk/cli`; continue with the [package API guide](./src/cli/README.mbt.md).

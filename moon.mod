@@ -1,6 +1,6 @@
 name = "totto2727/codex-sdk"
 
-version = "0.4.0"
+version = "0.4.1"
 
 readme = "README.mbt.md"
 
@@ -17,12 +17,12 @@ preferred_target = "wasm"
 supported_targets = "+wasm+native"
 
 import {
-  "moonbitlang/x@0.4.47",
-  "moonbitlang/async@0.20.3",
-  "totto2727/agent-core-sdk@0.1.1",
+  "moonbitlang/x@0.5.1",
+  "moonbitlang/async@0.21.0",
+  "totto2727/agent-core-sdk@0.1.2",
   "totto2727/copy@0.2.0",
-  "totto2727/lens@0.4.2",
-  "totto2727/x@0.6.0",
+  "totto2727/lens@0.4.3",
+  "totto2727/x@0.6.1",
 }
 
 source = "./src"

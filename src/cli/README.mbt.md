@@ -58,7 +58,7 @@ Cancelling the MoonBit task that owns `Thread::run` or `Thread::run_streamed` te
 Add the package to a MoonBit project:
 
 ```bash
-moon add totto2727/codex-sdk@0.4.0
+moon add totto2727/codex-sdk@0.4.1
 ```
 
 Import it as `totto2727/codex-sdk/cli`:
