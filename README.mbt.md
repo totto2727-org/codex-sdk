@@ -25,7 +25,7 @@ pub async fn summarize_repository() -> String {
 }
 ```
 
-See the [`cli` package guide](./src/cli/README.mbt.md) for executable examples of turns, streaming callbacks, structured output, and thread options.
+See the [`cli` package guide](./src/cli/README.mbt.md) for its owned API and direct links to checked buffered, streamed, resume, and structured-output flows.
 
 ## Key features
 
