@@ -12,7 +12,7 @@ Consumer prerequisites, installation, imports, and the basic buffered turn are d
 - `ClientOptions`, `ThreadOptions`, and `TurnOptions` configure the executable, environment, sandbox, approval, model, search behavior, and optional JSON output schema.
 - Cancelling the task that owns a turn terminates the Codex subprocess after temporary output-schema cleanup.
 
-## Runnable examples
+## Usage
 
 See the [checked thread flows](./test/thread_test.mbt) for buffered turns, streamed events, resumed threads, structured output, and cancellation behavior.
 
@@ -31,3 +31,5 @@ See the [checked thread flows](./test/thread_test.mbt) for buffered turns, strea
 ### `ThreadEvent` and `ThreadItem`
 
 Streamed turns expose typed lifecycle events, while completed items represent agent messages, reasoning, command executions, file changes, MCP calls, web searches, errors, and to-do lists.
+
+_This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
