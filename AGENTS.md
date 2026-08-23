@@ -39,8 +39,8 @@ The root README describes the module and links to the detailed [`cli` package RE
 - `moon test src/cli --target wasm` — Execute the package tests on the preferred target.
 - `moon test src/cli --target native` — Execute the package tests on the declared native target.
 - `moon package --list` — Check the package manifest and included files.
-- `moon package` — Create `_build/publish/totto2727-codex-sdk-0.4.0.zip`.
-- `unzip -l _build/publish/totto2727-codex-sdk-0.4.0.zip` — Inspect the generated archive.
+- `moon package` — Create `_build/publish/totto2727-codex-sdk-0.4.1.zip`.
+- `unzip -l _build/publish/totto2727-codex-sdk-0.4.1.zip` — Inspect the generated archive.
 
 ## Architecture
 
