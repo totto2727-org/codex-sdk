@@ -35,9 +35,9 @@ The root README describes the module and links to the detailed [`cli` package RE
 - `moon test --target native` — Run the declared native process-test target.
 - `moon build --target wasm` — Build the preferred target.
 - `moon build --target native` — Build the declared native target.
-- `moon check README.mbt.md` — Check the physical root module overview; the module root has no `moon.pkg`, so this README is check-only.
-- `moon check src/cli/README.mbt.md` — Check the package README examples in their containing package context.
-- `moon test src/cli` — Execute the package tests; package README examples are checked by the preceding command.
+- `moon -C /tmp check "$(pwd)/README.mbt.md"` — Check the root README as a standalone Markdown program from outside the module; its front matter supplies versioned imports and a supported backend.
+- `moon test src/cli --target wasm` — Execute the package tests on the preferred target.
+- `moon test src/cli --target native` — Execute the package tests on the declared native target.
 - `moon package --list` — Check the package manifest and included files.
 - `moon package` — Create `_build/publish/totto2727-codex-sdk-0.4.1.zip`.
 - `unzip -l _build/publish/totto2727-codex-sdk-0.4.1.zip` — Inspect the generated archive.

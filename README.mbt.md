@@ -1,28 +1,34 @@
+---
+moonbit:
+  backend: wasm
+  import:
+    - path: "totto2727/codex-sdk@0.4.1/cli"
+      alias: codex
+---
+
 # Codex SDK for MoonBit
 
 Embed the Codex agent in MoonBit applications through the published `cli` package. This module wraps the Codex CLI, exposes typed threads, turns, events, items, and options, and delegates process lifecycle management to `totto2727/agent-core-sdk/cli`.
 
-This document is the canonical module overview. The package-specific API guide is [`src/cli/README.mbt.md`](./src/cli/README.mbt.md).
+See the package-specific API guide at [`src/cli/README.mbt.md`](./src/cli/README.mbt.md).
 
 ## Usage
 
-Import the published `cli` package from a MoonBit application:
+Ask Codex to summarize a repository and return the completed response:
 
 ```mbt check
 ///|
-import {
-  "totto2727/codex-sdk/cli" @codex,
-}
-
-///|
-test "the module exposes the CLI package" {
+pub async fn summarize_repository() -> String {
   let client = @codex.Client::Client()
   let thread = client.start_thread()
-  debug_inspect(thread.id(), content="None")
+  let turn = thread.run(
+    @codex.Input::Prompt("Summarize the repository status"),
+  )
+  turn.final_response
 }
 ```
 
-See the [`cli` package guide](./src/cli/README.mbt.md) for executable examples of turns, streaming callbacks, structured output, and thread options.
+See the [`cli` package guide](./src/cli/README.mbt.md) for its owned API and direct links to checked buffered, streamed, resume, and structured-output flows.
 
 ## Key features
 
