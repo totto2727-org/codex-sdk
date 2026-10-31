@@ -54,7 +54,7 @@
         {
           default = defaultShell;
           ci = pkgs.mkShell {
-            inputsFrom = [ defaultShell ];
+            inputsFrom = [ (defaultShell.overrideAttrs (_: { shellHook = ""; })) ];
             packages = [ pkgs.codex ];
           };
         }
