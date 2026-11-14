@@ -6,10 +6,11 @@
 
 ///|
 /// Type difference: Json replaces TypeScript unknown, and cancelling the owning MoonBit task replaces AbortSignal.
+#derive(Debug, Eq)
 pub struct TurnOptions {
   /// Optional JSON object written to a temporary file and passed to Codex with `--output-schema`.
   output_schema : Json?
-} derive(Debug, Eq)
+}
 
 ///| Constructs the same output-schema option as the upstream object type.
 
@@ -21,7 +22,7 @@ pub struct TurnOptions {
 /// ```mbt check
 /// test "TurnOptions accepts an output schema" {
 ///   let schema = @json.parse("{\"type\":\"object\"}")
-///   let options = TurnOptions::TurnOptions(output_schema=schema)
+///   let options = @cli.TurnOptions::TurnOptions(output_schema=schema)
 ///   assert_true(options.output_schema is Some(_))
 /// }
 /// ```

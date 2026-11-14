@@ -18,7 +18,7 @@ supported_targets = "+wasm+native"
 
 import {
   "moonbitlang/x@0.5.1",
-  "moonbitlang/async@0.21.0",
+  "moonbitlang/async@0.22.9",
   "totto2727/agent-core-sdk@0.1.2",
   "totto2727/copy@0.2.0",
   "totto2727/lens@0.4.3",

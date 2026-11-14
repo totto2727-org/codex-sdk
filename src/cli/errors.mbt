@@ -7,10 +7,11 @@
 
 ///|
 /// Type difference: named variants retain upstream failure boundaries while satisfying MoonBit's typed error system.
+#derive(Debug, Eq)
 pub suberror SdkError {
   InvalidConfig(path~ : String, message~ : String)
   InvalidOutputSchema(message~ : String)
   InvalidEvent(message~ : String)
   TurnFailed(message~ : String)
-  ExecFailed(code~ : Int, stderr~ : String)
-} derive(Debug, Eq)
+  ExecFailed(code~ : Int32, stderr~ : String)
+}

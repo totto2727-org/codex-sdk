@@ -14,7 +14,7 @@ const MOONBIT_SDK_ORIGINATOR_ : String = "codex_sdk_mbt"
 
 ///|
 /// Matches the maximum container depth accepted by `totto2727/x/json` paths.
-const MAX_CONFIG_DEPTH_ : Int = 256
+const MAX_CONFIG_DEPTH_ : Int32 = 256
 
 ///| Serializes Codex config overrides before per-thread arguments.
 
@@ -70,7 +70,7 @@ fn serialize_config_overrides_(
       )
     }
     overrides.push(
-      "\{path}=\{to_toml_value_(value, path, depth=path.split(".").length())}",
+      "\{path}=\{to_toml_value_(value, path, depth=path.split(".").count())}",
     )
   }
   overrides
@@ -101,7 +101,7 @@ fn is_codex_dotted_path_(path : String) -> Bool {
 fn to_toml_value_(
   value : Json,
   path : String,
-  depth? : Int = 1,
+  depth~ : Int32 = 1,
 ) -> String raise SdkError {
   guard depth <= MAX_CONFIG_DEPTH_ else {
     raise InvalidConfig(

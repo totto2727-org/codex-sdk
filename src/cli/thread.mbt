@@ -4,11 +4,12 @@
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L9-L14
+#derive(Eq)
 pub struct Turn {
   items : ReadOnlyArray[ThreadItem]
   final_response : String
   usage : Usage?
-} derive(Eq)
+}
 
 ///| Alias describing the result returned by `Thread::run`.
 
@@ -36,10 +37,11 @@ pub type RunStreamedResult = StreamedTurn
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a discriminated object union, and Path replaces filesystem strings.
+#derive(Eq)
 pub(all) enum UserInput {
   Text(String)
   LocalImage(@path.Path)
-} derive(Eq)
+}
 
 ///| Input accepted by a thread turn.
 
@@ -48,10 +50,11 @@ pub(all) enum UserInput {
 ///|
 /// Type difference: MoonBit uses an enum instead of the TypeScript string-or-array union.
 /// `UserInputs` joins text entries with a blank line and passes local images separately to the CLI.
+#derive(Eq)
 pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
-} derive(Eq)
+}
 
 ///| Represents one persisted conversation with the Codex agent.
 
@@ -82,7 +85,7 @@ fn Thread::Thread(
   thread_options : ThreadOptions,
   id? : String,
 ) -> Thread {
-  { exec, client_options, id_value: id, thread_options }
+  { exec, client_options, id_value: id, thread_options, }
 }
 
 ///| Runs one turn and forwards each structured event as it is produced.
@@ -97,8 +100,8 @@ fn Thread::Thread(
 ///
 /// ```mbt check
 /// async test "run_streamed has task-owned cancellation" {
-///   let streamed = async fn(thread : Thread) {
-///     thread.run_streamed(Input::Prompt("Cancel this turn"), async fn(_) {
+///   let streamed = async fn(thread : @cli.Thread) {
+///     thread.run_streamed(@cli.Input::Prompt("Cancel this turn"), async fn(_) {
 ///       @async.pause()
 ///     })
 ///   }
@@ -109,7 +112,7 @@ pub async fn Thread::run_streamed(
   self : Thread,
   input : Input,
   on_event : async (ThreadEvent) -> Unit,
-  turn_options? : TurnOptions = TurnOptions::TurnOptions(),
+  turn_options~ : TurnOptions = TurnOptions::TurnOptions(),
 ) -> Unit {
   self.run_streamed_internal(input, turn_options, async fn(event) {
     on_event(event)
@@ -130,53 +133,35 @@ async fn Thread::run_streamed_internal(
   on_event : async (ThreadEvent) -> Bool,
 ) -> Unit {
   let schema_file = create_output_schema_file_(turn_options.output_schema)
+  defer @async.protect_from_cancel(async fn() { schema_file.cleanup_() })
   let normalized = normalize_input(input)
   let thread_options = self.thread_options
-  let stop_requested = Ref(false)
-  let result = Ok(
-    self.exec.run(
-      {
-        input: normalized.prompt,
-        base_url: self.client_options.base_url,
-        api_key: self.client_options.api_key,
-        thread_id: self.id_value,
-        images: normalized.images,
-        model: thread_options.model,
-        sandbox_mode: thread_options.sandbox_mode,
-        working_directory: thread_options.working_directory,
-        additional_directories: thread_options.additional_directories,
-        skip_git_repo_check: thread_options.skip_git_repo_check,
-        output_schema_file: schema_file.schema_path,
-        model_reasoning_effort: thread_options.model_reasoning_effort,
-        network_access_enabled: thread_options.network_access_enabled,
-        web_search_mode: thread_options.web_search_mode,
-        web_search_enabled: thread_options.web_search_enabled,
-        approval_policy: thread_options.approval_policy,
-      },
-      async fn(event) {
-        if event is ThreadStarted(started) {
-          self.id_value = Some(started.thread_id)
-        }
-        let should_continue = on_event(event)
-        if !should_continue {
-          stop_requested.val = true
-        }
-        should_continue
-      },
-    ),
-  ) catch {
-    error => Err(error)
-  }
-  @async.protect_from_cancel(async fn() { schema_file.cleanup_() })
-  match result {
-    Ok(_) => ()
-    Err(error) =>
-      // Async type difference: cancelling the MoonBit process task surfaces as cancellation after cleanup; the upstream generator closes normally when its consumer breaks.
-      // Upstream generator cleanup: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/exec.ts#L235-L242
-      if !stop_requested.val || !@async.is_cancellation_error(error) {
-        raise error
+  self.exec.run(
+    {
+      input: normalized.prompt,
+      base_url: self.client_options.base_url,
+      api_key: self.client_options.api_key,
+      thread_id: self.id_value,
+      images: normalized.images,
+      model: thread_options.model,
+      sandbox_mode: thread_options.sandbox_mode,
+      working_directory: thread_options.working_directory,
+      additional_directories: thread_options.additional_directories,
+      skip_git_repo_check: thread_options.skip_git_repo_check,
+      output_schema_file: schema_file.schema_path,
+      model_reasoning_effort: thread_options.model_reasoning_effort,
+      network_access_enabled: thread_options.network_access_enabled,
+      web_search_mode: thread_options.web_search_mode,
+      web_search_enabled: thread_options.web_search_enabled,
+      approval_policy: thread_options.approval_policy,
+    },
+    async fn(event) {
+      if event is ThreadStarted(started) {
+        self.id_value = Some(started.thread_id)
       }
-  }
+      on_event(event)
+    },
+  )
 }
 
 ///| Runs one turn and buffers completed items, the final response, and token usage.
@@ -187,7 +172,7 @@ async fn Thread::run_streamed_internal(
 pub async fn Thread::run(
   self : Thread,
   input : Input,
-  turn_options? : TurnOptions = TurnOptions::TurnOptions(),
+  turn_options~ : TurnOptions = TurnOptions::TurnOptions(),
 ) -> Turn {
   let items : Array[ThreadItem] = []
   let mut final_response = ""
@@ -222,7 +207,7 @@ pub async fn Thread::run(
   if turn_failure is Some(error) {
     raise SdkError::TurnFailed(message=error.message)
   }
-  { items: ReadOnlyArray::from_array(items), final_response, usage }
+  { items: ReadOnlyArray::from_array(items), final_response, usage, }
 }
 
 // Type difference: MoonBit requires a named type for the upstream normalizeInput return object.
@@ -240,7 +225,7 @@ priv struct MoonBitInternalNormalizedInput {
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L143-L157
 fn normalize_input(input : Input) -> MoonBitInternalNormalizedInput {
   match input {
-    Prompt(prompt) => { prompt, images: [] }
+    Prompt(prompt) => { prompt, images: [], }
     UserInputs(items) => {
       let prompt = items
         .iter()
@@ -260,7 +245,7 @@ fn normalize_input(input : Input) -> MoonBitInternalNormalizedInput {
           }
         })
         .collect()
-      { prompt, images }
+      { prompt, images, }
     }
   }
 }
