@@ -12,6 +12,7 @@ pub type ConfigObject = Map[String, Json]
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
+#derive(Eq)
 pub struct ClientOptions {
   /// Optional executable path. When omitted, the `codex` executable is resolved through `PATH`.
   executable_path_override : @path.Path?
@@ -23,7 +24,7 @@ pub struct ClientOptions {
   config : ConfigObject?
   /// Optional process environment override. When supplied, only this map is used as the process environment.
   env : Map[String, String]?
-} derive(Eq)
+}
 
 ///| Constructs the same optional client option fields as the upstream object type.
 
@@ -38,5 +39,5 @@ pub fn ClientOptions::ClientOptions(
   config? : ConfigObject,
   env? : Map[String, String],
 ) -> ClientOptions {
-  { executable_path_override, base_url, api_key, config, env }
+  { executable_path_override, base_url, api_key, config, env, }
 }

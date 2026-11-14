@@ -16,7 +16,7 @@ let command_execution_aggregated_output_lens_ : @lens.Lens[String] = @lens.root(
 )
 
 ///|
-let command_execution_exit_code_lens_ : @lens.PresenceLens[Int] = @lens.root()
+let command_execution_exit_code_lens_ : @lens.PresenceLens[Int32] = @lens.root()
   .int("exit_code")
   .nullish()
 
@@ -111,9 +111,9 @@ pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path)
 ///|
 pub impl ToJson for CommandExecutionStatus with fn to_json(self) {
   match self {
-    InProgress => "in_progress".to_json()
-    Completed => "completed".to_json()
-    Failed => "failed".to_json()
+    InProgress => ToJson::to_json("in_progress")
+    Completed => ToJson::to_json("completed")
+    Failed => ToJson::to_json("failed")
   }
 }
 
@@ -134,9 +134,9 @@ pub impl @json.FromJson for PatchChangeKind with fn from_json(json, path) {
 ///|
 pub impl ToJson for PatchChangeKind with fn to_json(self) {
   match self {
-    Add => "add".to_json()
-    Delete => "delete".to_json()
-    Update => "update".to_json()
+    Add => ToJson::to_json("add")
+    Delete => ToJson::to_json("delete")
+    Update => ToJson::to_json("update")
   }
 }
 
@@ -156,8 +156,8 @@ pub impl @json.FromJson for PatchApplyStatus with fn from_json(json, path) {
 ///|
 pub impl ToJson for PatchApplyStatus with fn to_json(self) {
   match self {
-    PatchCompleted => "completed".to_json()
-    PatchFailed => "failed".to_json()
+    PatchCompleted => ToJson::to_json("completed")
+    PatchFailed => ToJson::to_json("failed")
   }
 }
 
@@ -178,16 +178,16 @@ pub impl @json.FromJson for McpToolCallStatus with fn from_json(json, path) {
 ///|
 pub impl ToJson for McpToolCallStatus with fn to_json(self) {
   match self {
-    McpInProgress => "in_progress".to_json()
-    McpCompleted => "completed".to_json()
-    McpFailed => "failed".to_json()
+    McpInProgress => ToJson::to_json("in_progress")
+    McpCompleted => ToJson::to_json("completed")
+    McpFailed => ToJson::to_json("failed")
   }
 }
 
 ///|
 pub impl ToJson for FileUpdateChange with fn to_json(self) {
   Json::object({
-    "path": "\{self.path}".to_json(),
+    "path": ToJson::to_json("\{self.path}"),
     "kind": ToJson::to_json(self.kind),
   })
 }
@@ -195,7 +195,7 @@ pub impl ToJson for FileUpdateChange with fn to_json(self) {
 ///|
 pub impl ToJson for McpToolCallResult with fn to_json(self) {
   let value : Map[String, Json] = {
-    "content": self.content.to_json(),
+    "content": ToJson::to_json(self.content),
     "structured_content": self.structured_content,
   }
   match self.meta {
@@ -223,7 +223,7 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
   let status = command_execution_status_lens_.get_or_json_decode_error(
     json, path,
   )
-  { id, command, aggregated_output, exit_code, status }
+  { id, command, aggregated_output, exit_code, status, }
 }
 
 ///|
@@ -233,7 +233,7 @@ pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
   }
   let path_value = file_update_path_lens_.get_or_json_decode_error(json, path)
   let kind = file_update_kind_lens_.get_or_json_decode_error(json, path)
-  { path: @path.Path(path_value), kind }
+  { path: @path.Path(path_value), kind, }
 }
 
 ///|
@@ -246,7 +246,7 @@ pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
   let structured_content = mcp_result_structured_content_lens_.get_or_json_decode_error(
     json, path,
   )
-  { content: ReadOnlyArray::from_array(content), meta, structured_content }
+  { content: ReadOnlyArray::from_array(content), meta, structured_content, }
 }
 
 ///|
@@ -261,7 +261,7 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
   let result = mcp_item_result_lens_.get_or_json_decode_error(json, path)
   let error = mcp_item_error_lens_.get_or_json_decode_error(json, path)
   let status = mcp_item_status_lens_.get_or_json_decode_error(json, path)
-  { id, server, tool, arguments, result, error, status }
+  { id, server, tool, arguments, result, error, status, }
 }
 
 ///|
@@ -272,7 +272,7 @@ pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
   let id = item_id_lens_.get_or_json_decode_error(json, path)
   let changes = file_change_changes_lens_.get_or_json_decode_error(json, path)
   let status = file_change_status_lens_.get_or_json_decode_error(json, path)
-  { id, changes: ReadOnlyArray::from_array(changes), status }
+  { id, changes: ReadOnlyArray::from_array(changes), status, }
 }
 
 ///|
@@ -282,7 +282,7 @@ pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
   }
   let id = item_id_lens_.get_or_json_decode_error(json, path)
   let items = todo_list_items_lens_.get_or_json_decode_error(json, path)
-  { id, items: ReadOnlyArray::from_array(items) }
+  { id, items: ReadOnlyArray::from_array(items), }
 }
 
 ///|

@@ -6,23 +6,25 @@
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub enum CommandExecutionStatus {
   InProgress
   Completed
   Failed
-} derive(Debug, Eq)
+}
 
 ///| A command executed by the agent.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L8-L20
+#derive(Debug, Eq)
 pub struct CommandExecutionItem {
   id : String
   command : String
   aggregated_output : String
-  exit_code : Int?
+  exit_code : Int32?
   status : CommandExecutionStatus
-} derive(Debug, Eq)
+}
 
 ///| The kind of a file update.
 
@@ -30,11 +32,12 @@ pub struct CommandExecutionItem {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub enum PatchChangeKind {
   Add
   Delete
   Update
-} derive(Debug, Eq)
+}
 
 ///| One file update in an applied patch.
 
@@ -42,10 +45,11 @@ pub enum PatchChangeKind {
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
+#derive(Eq)
 pub struct FileUpdateChange {
   path : @path.Path
   kind : PatchChangeKind
-} derive(Eq)
+}
 
 ///| The terminal status of a patch application.
 
@@ -53,20 +57,22 @@ pub struct FileUpdateChange {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub enum PatchApplyStatus {
   PatchCompleted
   PatchFailed
-} derive(Debug, Eq)
+}
 
 ///| A set of file changes emitted after a patch succeeds or fails.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L34-L42
+#derive(Eq)
 pub struct FileChangeItem {
   id : String
   changes : ReadOnlyArray[FileUpdateChange]
   status : PatchApplyStatus
-} derive(Eq)
+}
 
 ///| The status of an MCP tool call.
 
@@ -74,11 +80,12 @@ pub struct FileChangeItem {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub enum McpToolCallStatus {
   McpInProgress
   McpCompleted
   McpFailed
-} derive(Debug, Eq)
+}
 
 ///| The successful result of an MCP tool call.
 
@@ -86,11 +93,12 @@ pub enum McpToolCallStatus {
 
 ///|
 /// Type difference: explicit structs replace inline TypeScript object types.
+#derive(Debug, Eq)
 pub struct McpToolCallResult {
   content : ReadOnlyArray[Json]
   meta : Json?
   structured_content : Json
-} derive(Debug, Eq)
+}
 
 ///| The failure returned by an MCP tool.
 
@@ -98,14 +106,16 @@ pub struct McpToolCallResult {
 
 ///|
 /// Type difference: explicit structs replace inline TypeScript object types.
+#derive(Debug, Eq, FromJson, ToJson)
 pub struct McpToolCallError {
   message : String
-} derive(Debug, Eq, FromJson, ToJson)
+}
 
 ///| A call dispatched to an MCP server.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L47-L72
+#derive(Debug, Eq)
 pub struct McpToolCallItem {
   id : String
   server : String
@@ -114,61 +124,67 @@ pub struct McpToolCallItem {
   result : McpToolCallResult?
   error : McpToolCallError?
   status : McpToolCallStatus
-} derive(Debug, Eq)
+}
 
 ///| A natural-language or structured response emitted by the agent.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L74-L80
+#derive(Debug, Eq, FromJson)
 pub struct AgentMessageItem {
   id : String
   text : String
-} derive(Debug, Eq, FromJson)
+}
 
 ///| An agent reasoning summary.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L82-L87
+#derive(Debug, Eq, FromJson)
 pub struct ReasoningItem {
   id : String
   text : String
-} derive(Debug, Eq, FromJson)
+}
 
 ///| A web search request made by the agent.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L89-L94
+#derive(Debug, Eq, FromJson)
 pub struct WebSearchItem {
   id : String
   query : String
-} derive(Debug, Eq, FromJson)
+}
 
 ///| A non-fatal error surfaced as a thread item.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L96-L101
+#derive(Debug, Eq, FromJson)
 pub struct ErrorItem {
   id : String
   message : String
-} derive(Debug, Eq, FromJson)
+}
 
 ///| One entry in the agent's running to-do list.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L103-L107
+#derive(Debug, Eq, FromJson, ToJson)
 pub struct TodoItem {
   text : String
   completed : Bool
-} derive(Debug, Eq, FromJson, ToJson)
+}
 
 ///| The agent's current running to-do list.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L109-L117
+#derive(Debug, Eq)
 pub struct TodoListItem {
   id : String
   items : ReadOnlyArray[TodoItem]
-} derive(Debug, Eq)
+}
 
 ///| Canonical union of thread items and their type-specific payloads.
 
@@ -176,6 +192,7 @@ pub struct TodoListItem {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a discriminated object union.
+#derive(Eq)
 pub enum ThreadItem {
   AgentMessage(AgentMessageItem)
   Reasoning(ReasoningItem)
@@ -185,4 +202,4 @@ pub enum ThreadItem {
   WebSearch(WebSearchItem)
   TodoList(TodoListItem)
   Error(ErrorItem)
-} derive(Eq)
+}
