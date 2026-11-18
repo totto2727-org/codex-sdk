@@ -60,6 +60,9 @@ pub impl @json.FromJson for Usage with fn from_json(json, path) {
 }
 
 ///|
+pub extend Usage with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "thread event must be an object"))
@@ -81,3 +84,6 @@ pub impl @json.FromJson for ThreadEvent with fn from_json(json, path) {
       )
   }
 }
+
+///|
+pub extend ThreadEvent with @json.FromJson::{from_json}

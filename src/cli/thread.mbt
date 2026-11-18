@@ -11,6 +11,9 @@ pub struct Turn {
   usage : Usage?
 }
 
+///|
+pub extend Turn with Eq::{not_equal, equal}
+
 ///| Alias describing the result returned by `Thread::run`.
 
 ///|
@@ -43,6 +46,9 @@ pub(all) enum UserInput {
   LocalImage(@path.Path)
 }
 
+///|
+pub extend UserInput with Eq::{not_equal, equal}
+
 ///| Input accepted by a thread turn.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/thread.ts#L38
@@ -55,6 +61,9 @@ pub(all) enum Input {
   Prompt(String)
   UserInputs(Array[UserInput])
 }
+
+///|
+pub extend Input with Eq::{not_equal, equal}
 
 ///| Represents one persisted conversation with the Codex agent.
 

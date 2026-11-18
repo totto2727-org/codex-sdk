@@ -13,6 +13,12 @@ pub enum CommandExecutionStatus {
   Failed
 }
 
+///|
+pub extend CommandExecutionStatus with Debug::{to_repr}
+
+///|
+pub extend CommandExecutionStatus with Eq::{not_equal, equal}
+
 ///| A command executed by the agent.
 
 ///|
@@ -25,6 +31,12 @@ pub struct CommandExecutionItem {
   exit_code : Int32?
   status : CommandExecutionStatus
 }
+
+///|
+pub extend CommandExecutionItem with Debug::{to_repr}
+
+///|
+pub extend CommandExecutionItem with Eq::{not_equal, equal}
 
 ///| The kind of a file update.
 
@@ -39,6 +51,12 @@ pub enum PatchChangeKind {
   Update
 }
 
+///|
+pub extend PatchChangeKind with Debug::{to_repr}
+
+///|
+pub extend PatchChangeKind with Eq::{not_equal, equal}
+
 ///| One file update in an applied patch.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L25-L29
@@ -50,6 +68,9 @@ pub struct FileUpdateChange {
   path : @path.Path
   kind : PatchChangeKind
 }
+
+///|
+pub extend FileUpdateChange with Eq::{not_equal, equal}
 
 ///| The terminal status of a patch application.
 
@@ -63,6 +84,12 @@ pub enum PatchApplyStatus {
   PatchFailed
 }
 
+///|
+pub extend PatchApplyStatus with Debug::{to_repr}
+
+///|
+pub extend PatchApplyStatus with Eq::{not_equal, equal}
+
 ///| A set of file changes emitted after a patch succeeds or fails.
 
 ///|
@@ -73,6 +100,9 @@ pub struct FileChangeItem {
   changes : ReadOnlyArray[FileUpdateChange]
   status : PatchApplyStatus
 }
+
+///|
+pub extend FileChangeItem with Eq::{not_equal, equal}
 
 ///| The status of an MCP tool call.
 
@@ -87,6 +117,12 @@ pub enum McpToolCallStatus {
   McpFailed
 }
 
+///|
+pub extend McpToolCallStatus with Debug::{to_repr}
+
+///|
+pub extend McpToolCallStatus with Eq::{not_equal, equal}
+
 ///| The successful result of an MCP tool call.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L60-L65
@@ -100,6 +136,12 @@ pub struct McpToolCallResult {
   structured_content : Json
 }
 
+///|
+pub extend McpToolCallResult with Debug::{to_repr}
+
+///|
+pub extend McpToolCallResult with Eq::{not_equal, equal}
+
 ///| The failure returned by an MCP tool.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L66-L69
@@ -110,6 +152,18 @@ pub struct McpToolCallResult {
 pub struct McpToolCallError {
   message : String
 }
+
+///|
+pub extend McpToolCallError with Debug::{to_repr}
+
+///|
+pub extend McpToolCallError with Eq::{not_equal, equal}
+
+///|
+pub extend McpToolCallError with @json.FromJson::{from_json}
+
+///|
+pub extend McpToolCallError with ToJson::{to_json}
 
 ///| A call dispatched to an MCP server.
 
@@ -126,6 +180,12 @@ pub struct McpToolCallItem {
   status : McpToolCallStatus
 }
 
+///|
+pub extend McpToolCallItem with Debug::{to_repr}
+
+///|
+pub extend McpToolCallItem with Eq::{not_equal, equal}
+
 ///| A natural-language or structured response emitted by the agent.
 
 ///|
@@ -135,6 +195,15 @@ pub struct AgentMessageItem {
   id : String
   text : String
 }
+
+///|
+pub extend AgentMessageItem with Debug::{to_repr}
+
+///|
+pub extend AgentMessageItem with Eq::{not_equal, equal}
+
+///|
+pub extend AgentMessageItem with @json.FromJson::{from_json}
 
 ///| An agent reasoning summary.
 
@@ -146,6 +215,15 @@ pub struct ReasoningItem {
   text : String
 }
 
+///|
+pub extend ReasoningItem with Debug::{to_repr}
+
+///|
+pub extend ReasoningItem with Eq::{not_equal, equal}
+
+///|
+pub extend ReasoningItem with @json.FromJson::{from_json}
+
 ///| A web search request made by the agent.
 
 ///|
@@ -155,6 +233,15 @@ pub struct WebSearchItem {
   id : String
   query : String
 }
+
+///|
+pub extend WebSearchItem with Debug::{to_repr}
+
+///|
+pub extend WebSearchItem with Eq::{not_equal, equal}
+
+///|
+pub extend WebSearchItem with @json.FromJson::{from_json}
 
 ///| A non-fatal error surfaced as a thread item.
 
@@ -166,6 +253,15 @@ pub struct ErrorItem {
   message : String
 }
 
+///|
+pub extend ErrorItem with Debug::{to_repr}
+
+///|
+pub extend ErrorItem with Eq::{not_equal, equal}
+
+///|
+pub extend ErrorItem with @json.FromJson::{from_json}
+
 ///| One entry in the agent's running to-do list.
 
 ///|
@@ -176,6 +272,18 @@ pub struct TodoItem {
   completed : Bool
 }
 
+///|
+pub extend TodoItem with Debug::{to_repr}
+
+///|
+pub extend TodoItem with Eq::{not_equal, equal}
+
+///|
+pub extend TodoItem with @json.FromJson::{from_json}
+
+///|
+pub extend TodoItem with ToJson::{to_json}
+
 ///| The agent's current running to-do list.
 
 ///|
@@ -185,6 +293,12 @@ pub struct TodoListItem {
   id : String
   items : ReadOnlyArray[TodoItem]
 }
+
+///|
+pub extend TodoListItem with Debug::{to_repr}
+
+///|
+pub extend TodoListItem with Eq::{not_equal, equal}
 
 ///| Canonical union of thread items and their type-specific payloads.
 
@@ -203,3 +317,6 @@ pub enum ThreadItem {
   TodoList(TodoListItem)
   Error(ErrorItem)
 }
+
+///|
+pub extend ThreadItem with Eq::{not_equal, equal}

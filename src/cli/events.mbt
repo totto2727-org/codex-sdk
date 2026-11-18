@@ -9,12 +9,30 @@ pub struct ThreadStartedEvent {
   thread_id : String
 }
 
+///|
+pub extend ThreadStartedEvent with Debug::{to_repr}
+
+///|
+pub extend ThreadStartedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend ThreadStartedEvent with @json.FromJson::{from_json}
+
 ///| Emitted when a turn starts.
 
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/events.ts#L12-L18
 #derive(Debug, Eq, FromJson)
 pub struct TurnStartedEvent {}
+
+///|
+pub extend TurnStartedEvent with Debug::{to_repr}
+
+///|
+pub extend TurnStartedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend TurnStartedEvent with @json.FromJson::{from_json}
 
 ///| Token usage reported for a completed turn.
 
@@ -29,6 +47,12 @@ pub struct Usage {
   reasoning_output_tokens : Int32
 }
 
+///|
+pub extend Usage with Debug::{to_repr}
+
+///|
+pub extend Usage with Eq::{not_equal, equal}
+
 ///| Emitted when a turn completes.
 
 ///|
@@ -37,6 +61,15 @@ pub struct Usage {
 pub struct TurnCompletedEvent {
   usage : Usage
 }
+
+///|
+pub extend TurnCompletedEvent with Debug::{to_repr}
+
+///|
+pub extend TurnCompletedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend TurnCompletedEvent with @json.FromJson::{from_json}
 
 ///| A fatal error attached to a failed turn.
 
@@ -47,6 +80,15 @@ pub struct ThreadError {
   message : String
 }
 
+///|
+pub extend ThreadError with Debug::{to_repr}
+
+///|
+pub extend ThreadError with Eq::{not_equal, equal}
+
+///|
+pub extend ThreadError with @json.FromJson::{from_json}
+
 ///| Emitted when a turn fails.
 
 ///|
@@ -55,6 +97,15 @@ pub struct ThreadError {
 pub struct TurnFailedEvent {
   error : ThreadError
 }
+
+///|
+pub extend TurnFailedEvent with Debug::{to_repr}
+
+///|
+pub extend TurnFailedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend TurnFailedEvent with @json.FromJson::{from_json}
 
 ///| Emitted when a new item is added to a thread.
 
@@ -65,6 +116,12 @@ pub struct ItemStartedEvent {
   item : ThreadItem
 }
 
+///|
+pub extend ItemStartedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend ItemStartedEvent with @json.FromJson::{from_json}
+
 ///| Emitted when an existing item changes.
 
 ///|
@@ -73,6 +130,12 @@ pub struct ItemStartedEvent {
 pub struct ItemUpdatedEvent {
   item : ThreadItem
 }
+
+///|
+pub extend ItemUpdatedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend ItemUpdatedEvent with @json.FromJson::{from_json}
 
 ///| Emitted when an item reaches a terminal state.
 
@@ -83,6 +146,12 @@ pub struct ItemCompletedEvent {
   item : ThreadItem
 }
 
+///|
+pub extend ItemCompletedEvent with Eq::{not_equal, equal}
+
+///|
+pub extend ItemCompletedEvent with @json.FromJson::{from_json}
+
 ///| An unrecoverable error emitted directly by the event stream.
 
 ///|
@@ -91,6 +160,15 @@ pub struct ItemCompletedEvent {
 pub struct ThreadErrorEvent {
   message : String
 }
+
+///|
+pub extend ThreadErrorEvent with Debug::{to_repr}
+
+///|
+pub extend ThreadErrorEvent with Eq::{not_equal, equal}
+
+///|
+pub extend ThreadErrorEvent with @json.FromJson::{from_json}
 
 ///| Top-level JSONL event emitted by `codex exec`.
 
@@ -107,3 +185,6 @@ pub enum ThreadEvent {
   ItemCompleted(ItemCompletedEvent)
   StreamError(ThreadErrorEvent)
 }
+
+///|
+pub extend ThreadEvent with Eq::{not_equal, equal}

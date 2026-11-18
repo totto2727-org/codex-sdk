@@ -12,6 +12,12 @@ pub struct TurnOptions {
   output_schema : Json?
 }
 
+///|
+pub extend TurnOptions with Debug::{to_repr}
+
+///|
+pub extend TurnOptions with Eq::{not_equal, equal}
+
 ///| Constructs the same output-schema option as the upstream object type.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/turnOptions.ts#L1-L6

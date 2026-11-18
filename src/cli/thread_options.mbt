@@ -14,6 +14,12 @@ pub(all) enum ApprovalMode {
   Untrusted
 }
 
+///|
+pub extend ApprovalMode with Debug::{to_repr}
+
+///|
+pub extend ApprovalMode with Eq::{not_equal, equal}
+
 ///| Returns the upstream CLI string for an approval mode.
 
 ///| Upstream values: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L1
@@ -41,6 +47,12 @@ pub(all) enum SandboxMode {
   WorkspaceWrite
   DangerFullAccess
 }
+
+///|
+pub extend SandboxMode with Debug::{to_repr}
+
+///|
+pub extend SandboxMode with Eq::{not_equal, equal}
 
 ///| Returns the upstream CLI string for a sandbox mode.
 
@@ -71,6 +83,12 @@ pub(all) enum ModelReasoningEffort {
   XHigh
 }
 
+///|
+pub extend ModelReasoningEffort with Debug::{to_repr}
+
+///|
+pub extend ModelReasoningEffort with Eq::{not_equal, equal}
+
 ///| Returns the upstream CLI string for a reasoning effort.
 
 ///| Upstream values: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/threadOptions.ts#L5
@@ -99,6 +117,12 @@ pub(all) enum WebSearchMode {
   Cached
   Live
 }
+
+///|
+pub extend WebSearchMode with Debug::{to_repr}
+
+///|
+pub extend WebSearchMode with Eq::{not_equal, equal}
 
 ///| Returns the upstream CLI string for a web-search mode.
 
@@ -133,6 +157,9 @@ pub struct ThreadOptions {
   approval_policy : ApprovalMode?
   additional_directories : Array[@path.Path]
 }
+
+///|
+pub extend ThreadOptions with Eq::{not_equal, equal}
 
 ///| Constructs the same optional ThreadOptions fields as the upstream object type.
 

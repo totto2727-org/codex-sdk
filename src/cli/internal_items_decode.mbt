@@ -109,6 +109,9 @@ pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path)
 }
 
 ///|
+pub extend CommandExecutionStatus with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for CommandExecutionStatus with fn to_json(self) {
   match self {
     InProgress => ToJson::to_json("in_progress")
@@ -116,6 +119,9 @@ pub impl ToJson for CommandExecutionStatus with fn to_json(self) {
     Failed => ToJson::to_json("failed")
   }
 }
+
+///|
+pub extend CommandExecutionStatus with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for PatchChangeKind with fn from_json(json, path) {
@@ -132,6 +138,9 @@ pub impl @json.FromJson for PatchChangeKind with fn from_json(json, path) {
 }
 
 ///|
+pub extend PatchChangeKind with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for PatchChangeKind with fn to_json(self) {
   match self {
     Add => ToJson::to_json("add")
@@ -139,6 +148,9 @@ pub impl ToJson for PatchChangeKind with fn to_json(self) {
     Update => ToJson::to_json("update")
   }
 }
+
+///|
+pub extend PatchChangeKind with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for PatchApplyStatus with fn from_json(json, path) {
@@ -154,12 +166,18 @@ pub impl @json.FromJson for PatchApplyStatus with fn from_json(json, path) {
 }
 
 ///|
+pub extend PatchApplyStatus with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for PatchApplyStatus with fn to_json(self) {
   match self {
     PatchCompleted => ToJson::to_json("completed")
     PatchFailed => ToJson::to_json("failed")
   }
 }
+
+///|
+pub extend PatchApplyStatus with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for McpToolCallStatus with fn from_json(json, path) {
@@ -176,6 +194,9 @@ pub impl @json.FromJson for McpToolCallStatus with fn from_json(json, path) {
 }
 
 ///|
+pub extend McpToolCallStatus with @json.FromJson::{from_json}
+
+///|
 pub impl ToJson for McpToolCallStatus with fn to_json(self) {
   match self {
     McpInProgress => ToJson::to_json("in_progress")
@@ -185,12 +206,18 @@ pub impl ToJson for McpToolCallStatus with fn to_json(self) {
 }
 
 ///|
+pub extend McpToolCallStatus with ToJson::{to_json}
+
+///|
 pub impl ToJson for FileUpdateChange with fn to_json(self) {
   Json::object({
     "path": ToJson::to_json("\{self.path}"),
     "kind": ToJson::to_json(self.kind),
   })
 }
+
+///|
+pub extend FileUpdateChange with ToJson::{to_json}
 
 ///|
 pub impl ToJson for McpToolCallResult with fn to_json(self) {
@@ -204,6 +231,9 @@ pub impl ToJson for McpToolCallResult with fn to_json(self) {
   }
   Json::object(value)
 }
+
+///|
+pub extend McpToolCallResult with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
@@ -227,6 +257,9 @@ pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
 }
 
 ///|
+pub extend CommandExecutionItem with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "file update must be an object"))
@@ -235,6 +268,9 @@ pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
   let kind = file_update_kind_lens_.get_or_json_decode_error(json, path)
   { path: @path.Path(path_value), kind, }
 }
+
+///|
+pub extend FileUpdateChange with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
@@ -248,6 +284,9 @@ pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
   )
   { content: ReadOnlyArray::from_array(content), meta, structured_content, }
 }
+
+///|
+pub extend McpToolCallResult with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
@@ -265,6 +304,9 @@ pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
 }
 
 ///|
+pub extend McpToolCallItem with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "file_change must be an object"))
@@ -276,6 +318,9 @@ pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
 }
 
 ///|
+pub extend FileChangeItem with @json.FromJson::{from_json}
+
+///|
 pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "todo_list must be an object"))
@@ -284,6 +329,9 @@ pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
   let items = todo_list_items_lens_.get_or_json_decode_error(json, path)
   { id, items: ReadOnlyArray::from_array(items), }
 }
+
+///|
+pub extend TodoListItem with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for ThreadItem with fn from_json(json, path) {
@@ -307,3 +355,6 @@ pub impl @json.FromJson for ThreadItem with fn from_json(json, path) {
       )
   }
 }
+
+///|
+pub extend ThreadItem with @json.FromJson::{from_json}

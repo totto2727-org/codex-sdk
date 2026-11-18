@@ -26,6 +26,9 @@ pub struct ClientOptions {
   env : Map[String, String]?
 }
 
+///|
+pub extend ClientOptions with Eq::{not_equal, equal}
+
 ///| Constructs the same optional client option fields as the upstream object type.
 
 ///| Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codexOptions.ts#L5-L22
