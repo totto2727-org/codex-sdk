@@ -22,7 +22,7 @@ import {
   "totto2727/agent-core-sdk@0.1.2",
   "totto2727/copy@0.2.0",
   "totto2727/lens@0.4.4",
-  "totto2727/x@0.6.1",
+  "totto2727/x@0.8.0",
 }
 
 source = "./src"
