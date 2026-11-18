@@ -51,11 +51,16 @@
             '';
           };
         in
-        {
+        rec {
           default = defaultShell;
-          ci = pkgs.mkShell {
-            inputsFrom = [ (defaultShell.overrideAttrs (_: { shellHook = ""; })) ];
+          ci-tools = pkgs.mkShell {
             packages = [ pkgs.codex ];
+          };
+          ci = pkgs.mkShell {
+            inputsFrom = [
+              (defaultShell.overrideAttrs (_: { shellHook = ""; }))
+              ci-tools
+            ];
           };
         }
       );
