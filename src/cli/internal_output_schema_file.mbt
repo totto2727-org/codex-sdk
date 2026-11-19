@@ -19,7 +19,7 @@ priv struct OutputSchemaFile_ {
 /// Type difference: Json replaces TypeScript unknown and Path replaces filesystem strings.
 async fn create_output_schema_file_(schema : Json?) -> OutputSchemaFile_ {
   match schema {
-    None => { schema_path: None, schema_directory: None }
+    None => { schema_path: None, schema_directory: None, }
     Some(schema) => {
       guard schema is Json::Object(_) else {
         raise InvalidOutputSchema(

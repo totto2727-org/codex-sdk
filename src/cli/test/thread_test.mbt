@@ -552,7 +552,7 @@ async fn create_cli_fixture() -> CliFixture {
     create_mode=CreateOrTruncate,
   )
   @fs.chmod(executable.to_string(), 0o755)
-  { root, executable, record_directory }
+  { root, executable, record_directory, }
 }
 
 ///|
@@ -596,7 +596,7 @@ fn CliFixture::client(
 async fn CliFixture::recorded_lines(
   self : CliFixture,
   name : String,
-  call : Int,
+  call : Int32,
 ) -> Array[String] {
   @fs.read_file("\{self.record_directory}/\{name}.\{call}")
   .text()
@@ -609,7 +609,7 @@ async fn CliFixture::recorded_lines(
 async fn CliFixture::recorded_text(
   self : CliFixture,
   name : String,
-  call : Int,
+  call : Int32,
 ) -> String {
   @fs.read_file("\{self.record_directory}/\{name}.\{call}").text()
 }
@@ -722,7 +722,7 @@ fn streamed_event_summary(event : ThreadEvent) -> String {
   match event {
     @codex.ThreadStarted(started) => "thread.started:\{started.thread_id}"
     @codex.TurnStarted(_) => "turn.started"
-    @codex.ItemCompleted({ item: @codex.AgentMessage(message) }) =>
+    @codex.ItemCompleted({ item: @codex.AgentMessage(message), }) =>
       "item.completed:\{message.id}:\{message.text}"
     @codex.TurnCompleted(completed) =>
       "turn.completed:\{completed.usage.input_tokens}:\{completed.usage.output_tokens}"
@@ -887,7 +887,8 @@ async fn wait_for_cancellation(task : @async.Task[Unit]) -> Bool {
     task.wait()
     false
   } catch {
-    error => @async.is_cancellation_error(error)
+    @async.WaitedTaskAlreadyCancelled => true
+    error => raise error
   }
 }
 

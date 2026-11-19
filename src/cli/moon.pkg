@@ -1,10 +1,8 @@
 supported_targets = "+wasm+native"
 
 import {
-  "moonbitlang/core/debug",
   "moonbitlang/core/env",
   "moonbitlang/core/json",
-  "moonbitlang/core/string",
   "moonbitlang/x/path",
   "moonbitlang/async",
   "moonbitlang/async/fs",
@@ -13,7 +11,3 @@ import {
   "totto2727/lens",
   "totto2727/x/json" @x_json,
 }
-
-import {
-  "moonbitlang/core/test",
-} for "wbtest"

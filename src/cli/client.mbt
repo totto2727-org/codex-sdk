@@ -23,7 +23,7 @@ pub struct Client {
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L15-L19
 pub fn Client::Client(
-  options? : ClientOptions = ClientOptions::ClientOptions(),
+  options~ : ClientOptions = ClientOptions::ClientOptions(),
 ) -> Client {
   {
     exec: Exec::Exec(
@@ -41,7 +41,7 @@ pub fn Client::Client(
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/codex.ts#L21-L27
 pub fn Client::start_thread(
   self : Client,
-  options? : ThreadOptions = ThreadOptions::ThreadOptions(),
+  options~ : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
   Thread::Thread(self.exec, self.client_options, options)
 }
@@ -53,7 +53,7 @@ pub fn Client::start_thread(
 pub fn Client::resume_thread(
   self : Client,
   id : String,
-  options? : ThreadOptions = ThreadOptions::ThreadOptions(),
+  options~ : ThreadOptions = ThreadOptions::ThreadOptions(),
 ) -> Thread {
   Thread::Thread(self.exec, self.client_options, options, id~)
 }

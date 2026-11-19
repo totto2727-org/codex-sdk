@@ -6,12 +6,19 @@
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub(all) enum ApprovalMode {
   Never
   OnRequest
   OnFailure
   Untrusted
-} derive(Debug, Eq)
+}
+
+///|
+pub extend ApprovalMode with Debug::{to_repr}
+
+///|
+pub extend ApprovalMode with Eq::{not_equal, equal}
 
 ///| Returns the upstream CLI string for an approval mode.
 
@@ -34,11 +41,18 @@ pub fn ApprovalMode::to_string(self : ApprovalMode) -> String {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub(all) enum SandboxMode {
   ReadOnly
   WorkspaceWrite
   DangerFullAccess
-} derive(Debug, Eq)
+}
+
+///|
+pub extend SandboxMode with Debug::{to_repr}
+
+///|
+pub extend SandboxMode with Eq::{not_equal, equal}
 
 ///| Returns the upstream CLI string for a sandbox mode.
 
@@ -60,13 +74,20 @@ pub fn SandboxMode::to_string(self : SandboxMode) -> String {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub(all) enum ModelReasoningEffort {
   Minimal
   Low
   Medium
   High
   XHigh
-} derive(Debug, Eq)
+}
+
+///|
+pub extend ModelReasoningEffort with Debug::{to_repr}
+
+///|
+pub extend ModelReasoningEffort with Eq::{not_equal, equal}
 
 ///| Returns the upstream CLI string for a reasoning effort.
 
@@ -90,11 +111,18 @@ pub fn ModelReasoningEffort::to_string(self : ModelReasoningEffort) -> String {
 
 ///|
 /// Type difference: MoonBit uses an enum instead of a string-literal union.
+#derive(Debug, Eq)
 pub(all) enum WebSearchMode {
   Disabled
   Cached
   Live
-} derive(Debug, Eq)
+}
+
+///|
+pub extend WebSearchMode with Debug::{to_repr}
+
+///|
+pub extend WebSearchMode with Eq::{not_equal, equal}
 
 ///| Returns the upstream CLI string for a web-search mode.
 
@@ -116,6 +144,7 @@ pub fn WebSearchMode::to_string(self : WebSearchMode) -> String {
 
 ///|
 /// Type difference: filesystem strings are represented by Path.
+#derive(Eq)
 pub struct ThreadOptions {
   model : String?
   sandbox_mode : SandboxMode?
@@ -127,7 +156,10 @@ pub struct ThreadOptions {
   web_search_enabled : Bool?
   approval_policy : ApprovalMode?
   additional_directories : Array[@path.Path]
-} derive(Eq)
+}
+
+///|
+pub extend ThreadOptions with Eq::{not_equal, equal}
 
 ///| Constructs the same optional ThreadOptions fields as the upstream object type.
 
@@ -138,7 +170,7 @@ pub struct ThreadOptions {
 ///
 /// ```mbt check
 /// test "ThreadOptions configures a thread" {
-///   let options = ThreadOptions::ThreadOptions(
+///   let options = @cli.ThreadOptions::ThreadOptions(
 ///     model="gpt-5.6",
 ///     sandbox_mode=ReadOnly,
 ///     approval_policy=Never,
@@ -159,7 +191,7 @@ pub fn ThreadOptions::ThreadOptions(
   web_search_mode? : WebSearchMode,
   web_search_enabled? : Bool,
   approval_policy? : ApprovalMode,
-  additional_directories? : Array[@path.Path] = [],
+  additional_directories~ : Array[@path.Path] = [],
 ) -> ThreadOptions {
   {
     model,

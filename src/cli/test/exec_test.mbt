@@ -16,12 +16,8 @@ async test "Exec run - rejects when exit happens before stdout closes" {
       "no error"
     } catch {
       @codex.SdkError::ExecFailed(code~, stderr~) => "\{code}:\{stderr.trim()}"
-      error =>
-        if @async.is_cancellation_error(error) {
-          "timed out"
-        } else {
-          "unexpected:\{error}"
-        }
+      @async.TimeoutError => "timed out"
+      error => "unexpected:\{error}"
     }
     inspect(detail, content="17:early failure")
   })
