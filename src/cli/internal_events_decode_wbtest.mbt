@@ -153,7 +153,7 @@ test "MoonBit event decoder - rejects unknown event types" {
 
 ///|
 test "MoonBit event decoder - rejects missing event types" {
-  assert_true(event_decode_error_("{}").contains("MissingProperty"))
+  assert_true(event_decode_error_("{}").contains("type"))
 }
 
 ///|
@@ -162,9 +162,45 @@ test "MoonBit event decoder - rejects non-object events" {
 }
 
 ///|
-test "MoonBit event decoder - rejects invalid nested payloads" {
-  let error = event_decode_error_(
-    "{\"type\":\"turn.completed\",\"usage\":{\"input_tokens\":\"ten\",\"cached_input_tokens\":2,\"output_tokens\":4,\"reasoning_output_tokens\":1}}",
-  )
-  assert_true(error.contains("TypeMismatch(expected=Number, actual=String)"))
+test "MoonBit event decoder - reports the exact path of an invalid usage field" {
+  let json : Json = {
+    "type": "turn.completed",
+    "usage": {
+      "input_tokens": "NaN",
+      "cached_input_tokens": 2,
+      "output_tokens": 4,
+      "reasoning_output_tokens": 1,
+    },
+  }
+  try {
+    let _event : ThreadEvent = @json.from_json(json)
+    fail("expected the numeric string to be rejected")
+  } catch {
+    @json.JsonDecodeError((path, _)) =>
+      inspect(path.to_string(), content="/usage/input_tokens")
+    error => raise error
+  }
+}
+
+///|
+test "MoonBit usage decoder - truncates JSON numbers and rejects null defaults" {
+  let json : Json = {
+    "input_tokens": 9.75,
+    "cached_input_tokens": 2,
+    "output_tokens": 4,
+    "reasoning_output_tokens": 1,
+  }
+  let usage : Usage = @json.from_json(json)
+  assert_eq(usage.input_tokens, 9)
+  assert_eq(usage.cache_write_input_tokens, 0)
+  guard json is Json::Object(fields) else { fail("expected usage object") }
+  fields["cache_write_input_tokens"] = Json::null()
+  try {
+    let _usage : Usage = @json.from_json(json)
+    fail("expected explicit null to be rejected")
+  } catch {
+    @json.JsonDecodeError((path, _)) =>
+      inspect(path.to_string(), content="/cache_write_input_tokens")
+    error => raise error
+  }
 }
