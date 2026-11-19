@@ -10,22 +10,20 @@ permissions:
 
 jobs:
   check:
-    env:
-      NIX_DEV_SHELL: ci
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: totto2727-org/monorepo/.github/actions/setup-nix@main
         with:
-          dev-shell: ${{ env.NIX_DEV_SHELL }}
-      - uses: totto2727-org/monorepo/.github/actions/setup-moonbit@main
-        with:
-          dev-shell: ${{ env.NIX_DEV_SHELL }}
-      - name: Verify Codex CLI
+          dev-shell: ci
+      - name: Add Codex CLI to PATH
         run: |
-          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#$NIX_DEV_SHELL")"
-          codex --version
-      - uses: totto2727-org/monorepo/.github/actions/check-moonbit@main
-        with:
-          dev-shell: ${{ env.NIX_DEV_SHELL }}
+          # shellcheck disable=SC2016
+          nix develop .#ci --command bash -euc '
+            path=$(command -v codex)
+            "$path" --version
+            dirname "$path" >> "$GITHUB_PATH"
+          '
+      - uses: totto2727-org/monorepo/.github/actions/setup-moonbit@1e96bd0df4241d3b5981cc508d74543db54c6c29
+      - uses: totto2727-org/monorepo/.github/actions/check-moonbit@1e96bd0df4241d3b5981cc508d74543db54c6c29

@@ -62,8 +62,8 @@ The root README describes the module and links to the detailed [`cli` package RE
 
 - **MoonBit**: Builds, checks, tests, formats, and packages the module.
 - **Mooncakes**: Publishes the module and renders the canonical API documentation from `///` comments.
-- **Nix flakes**: Provide reproducible development and CI shells.
-- **GitHub Actions**: Run preferred-target checks and publishing workflows.
+- **Nix flakes**: The default shell provides MoonBit for local development. The `ci` shell provides only Codex.
+- **GitHub Actions**: Use the shared stable MoonBit setup for preferred-target checks and publishing. Publishing does not use Nix.
 
 ## Package-specific rules
 
