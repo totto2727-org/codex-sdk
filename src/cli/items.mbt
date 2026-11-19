@@ -170,10 +170,12 @@ pub extend McpToolCallError with ToJson::{to_json}
 ///|
 /// Upstream: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L47-L72
 #derive(Debug, Eq)
+#custom.serde(decode_only)
 pub struct McpToolCallItem {
   id : String
   server : String
   tool : String
+  // Arguments follow the server's tool schema rather than an SDK-owned schema.
   arguments : Json
   result : McpToolCallResult?
   error : McpToolCallError?

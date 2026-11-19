@@ -55,7 +55,9 @@ The root README describes the module and links to the detailed [`cli` package RE
 
 - Keep shared provider-interface files focused on common symbols; move protocol decoding, serialization, and temporary-resource helpers into `internal_*.mbt` files.
 - Name private variables, functions, methods, constants, and helper types with a trailing underscore, such as `serialize_config_overrides_` or `OutputSchemaFile_`.
-- Use typed Lens constructors, including `custom` for matching `FromJson` and `ToJson` wire contracts. Use a raw `Lens[Json]` only for opaque protocol payloads and document that choice next to its declaration.
+- Use `#custom.serde` for static JSON wire shapes in `internal_*.mbt`. Use private wire types when decoding requires a domain conversion or when generating an encoder would add a public trait.
+- Keep opaque protocol values as `Json`. Keep existing unknown-tag handling and semantic conversions in the handwritten adapters.
+- After changing Serde attributes, run `serde-gen --package src/cli` and `moon fmt src/cli` from the repository root and commit `src/cli/serde.generated.mbt` with its source changes. Do not edit the generated file by hand. Consumers need the Serde runtime, not the generator.
 - Use `totto2727/x/json` for configuration flattening. Keep TOML literal conversion at the Codex CLI boundary until the shared JSON/TOML conversion work tracked by TOT-186 is available as a normal registry dependency.
 
 ## Development tools

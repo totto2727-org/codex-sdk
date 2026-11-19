@@ -3,96 +3,46 @@
 // Item shapes being decoded: https://github.com/openai/codex/blob/f201c30c52a35f819262865a53df94b6f4ea7a50/sdk/typescript/src/items.ts#L5-L128
 
 ///|
-let item_id_lens_ : @lens.Lens[String] = @lens.root().string("id")
+#custom.serde(decode_only)
+priv struct CommandExecutionWire_ {
+  id : String
+  command : String
+  aggregated_output : String
+  exit_code : WireInt_?
+  status : CommandExecutionStatus
+}
 
 ///|
-let command_execution_command_lens_ : @lens.Lens[String] = @lens.root().string(
-  "command",
-)
+#custom.serde
+priv struct FileUpdateWire_ {
+  path : String
+  kind : PatchChangeKind
+}
 
 ///|
-let command_execution_aggregated_output_lens_ : @lens.Lens[String] = @lens.root().string(
-  "aggregated_output",
-)
+#custom.serde(decode_only)
+priv struct FileChangeWire_ {
+  id : String
+  changes : Array[FileUpdateChange]
+  status : PatchApplyStatus
+}
 
 ///|
-let command_execution_exit_code_lens_ : @lens.PresenceLens[Int32] = @lens.root()
-  .int("exit_code")
-  .nullish()
+#custom.serde(decode_only)
+priv struct TodoListWire_ {
+  id : String
+  items : Array[TodoItem]
+}
 
 ///|
-let command_execution_status_lens_ : @lens.Lens[CommandExecutionStatus] = @lens.root().custom(
-  "status",
-)
-
-///|
-let file_update_path_lens_ : @lens.Lens[String] = @lens.root().string("path")
-
-///|
-let file_update_kind_lens_ : @lens.Lens[PatchChangeKind] = @lens.root().custom(
-  "kind",
-)
-
-///|
-/// MCP content blocks are protocol-defined opaque JSON values; only the array shape is fixed.
-let mcp_result_content_lens_ : @lens.Lens[Array[Json]] = @lens.root()
-  .json("content")
-  .array()
-
-///|
-/// MCP metadata is provider-defined and intentionally remains opaque JSON.
-let mcp_result_meta_lens_ : @lens.PresenceLens[Json] = @lens.root()
-  .json("_meta")
-  .nullish()
-
-///|
-/// Structured MCP output has no SDK-owned schema and intentionally remains raw JSON.
-let mcp_result_structured_content_lens_ : @lens.Lens[Json] = @lens.root().json(
-  "structured_content",
-)
-
-///|
-let mcp_item_server_lens_ : @lens.Lens[String] = @lens.root().string("server")
-
-///|
-let mcp_item_tool_lens_ : @lens.Lens[String] = @lens.root().string("tool")
-
-///|
-/// MCP tool arguments follow each tool's schema and intentionally remain raw JSON.
-let mcp_item_arguments_lens_ : @lens.Lens[Json] = @lens.root().json("arguments")
-
-///|
-let mcp_item_result_lens_ : @lens.PresenceLens[McpToolCallResult] = @lens.root()
-  .custom("result")
-  .nullish()
-
-///|
-let mcp_item_error_lens_ : @lens.PresenceLens[McpToolCallError] = @lens.root()
-  .custom("error")
-  .nullish()
-
-///|
-let file_change_changes_lens_ : @lens.Lens[Array[FileUpdateChange]] = @lens.root().custom(
-  "changes",
-)
-
-///|
-let todo_list_items_lens_ : @lens.Lens[Array[TodoItem]] = @lens.root().custom(
-  "items",
-)
-
-///|
-let file_change_status_lens_ : @lens.Lens[PatchApplyStatus] = @lens.root().custom(
-  "status",
-)
-
-///|
-let mcp_item_status_lens_ : @lens.Lens[McpToolCallStatus] = @lens.root().custom(
-  "status",
-)
-
-///|
-let thread_item_type_lens_ : @lens.Lens[String] = @lens.root().string("type")
+#custom.serde
+priv struct McpResultWire_[Content] {
+  // The MCP server defines the contents of these JSON values.
+  content : Content
+  structured_content : Json
+  #custom.serde(rename="_meta", skip_serializing_if="Option::is_none")
+  meta : Json?
+}
 
 ///|
 pub impl @json.FromJson for CommandExecutionStatus with fn from_json(json, path) {
@@ -210,10 +160,7 @@ pub extend McpToolCallStatus with ToJson::{to_json}
 
 ///|
 pub impl ToJson for FileUpdateChange with fn to_json(self) {
-  Json::object({
-    "path": ToJson::to_json("\{self.path}"),
-    "kind": ToJson::to_json(self.kind),
-  })
+  ToJson::to_json(FileUpdateWire_::{ path: "\{self.path}", kind: self.kind, })
 }
 
 ///|
@@ -221,15 +168,11 @@ pub extend FileUpdateChange with ToJson::{to_json}
 
 ///|
 pub impl ToJson for McpToolCallResult with fn to_json(self) {
-  let value : Map[String, Json] = {
-    "content": ToJson::to_json(self.content),
-    "structured_content": self.structured_content,
-  }
-  match self.meta {
-    Some(meta) => value["_meta"] = meta
-    None => ()
-  }
-  Json::object(value)
+  ToJson::to_json(McpResultWire_::{
+    content: self.content,
+    meta: self.meta,
+    structured_content: self.structured_content,
+  })
 }
 
 ///|
@@ -237,23 +180,14 @@ pub extend McpToolCallResult with ToJson::{to_json}
 
 ///|
 pub impl @json.FromJson for CommandExecutionItem with fn from_json(json, path) {
-  guard json is Json::Object(_) else {
-    raise @json.JsonDecodeError((path, "command_execution must be an object"))
+  let wire : CommandExecutionWire_ = @json.from_json(json, path~)
+  {
+    id: wire.id,
+    command: wire.command,
+    aggregated_output: wire.aggregated_output,
+    exit_code: wire.exit_code.map(value => value.0),
+    status: wire.status,
   }
-  let id = item_id_lens_.get_or_json_decode_error(json, path)
-  let command = command_execution_command_lens_.get_or_json_decode_error(
-    json, path,
-  )
-  let aggregated_output = command_execution_aggregated_output_lens_.get_or_json_decode_error(
-    json, path,
-  )
-  let exit_code = command_execution_exit_code_lens_.get_or_json_decode_error(
-    json, path,
-  )
-  let status = command_execution_status_lens_.get_or_json_decode_error(
-    json, path,
-  )
-  { id, command, aggregated_output, exit_code, status, }
 }
 
 ///|
@@ -261,12 +195,8 @@ pub extend CommandExecutionItem with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for FileUpdateChange with fn from_json(json, path) {
-  guard json is Json::Object(_) else {
-    raise @json.JsonDecodeError((path, "file update must be an object"))
-  }
-  let path_value = file_update_path_lens_.get_or_json_decode_error(json, path)
-  let kind = file_update_kind_lens_.get_or_json_decode_error(json, path)
-  { path: @path.Path(path_value), kind, }
+  let wire : FileUpdateWire_ = @json.from_json(json, path~)
+  { path: @path.Path(wire.path), kind: wire.kind, }
 }
 
 ///|
@@ -274,47 +204,28 @@ pub extend FileUpdateChange with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for McpToolCallResult with fn from_json(json, path) {
-  guard json is Json::Object(_) else {
-    raise @json.JsonDecodeError((path, "MCP tool result must be an object"))
+  let wire : McpResultWire_[Array[Json]] = @json.from_json(json, path~)
+  {
+    content: ReadOnlyArray::from_array(wire.content),
+    meta: wire.meta,
+    structured_content: wire.structured_content,
   }
-  let content = mcp_result_content_lens_.get_or_json_decode_error(json, path)
-  let meta = mcp_result_meta_lens_.get_or_json_decode_error(json, path)
-  let structured_content = mcp_result_structured_content_lens_.get_or_json_decode_error(
-    json, path,
-  )
-  { content: ReadOnlyArray::from_array(content), meta, structured_content, }
 }
 
 ///|
 pub extend McpToolCallResult with @json.FromJson::{from_json}
 
 ///|
-pub impl @json.FromJson for McpToolCallItem with fn from_json(json, path) {
-  guard json is Json::Object(_) else {
-    raise @json.JsonDecodeError((path, "mcp_tool_call must be an object"))
-  }
-  let id = item_id_lens_.get_or_json_decode_error(json, path)
-  let server = mcp_item_server_lens_.get_or_json_decode_error(json, path)
-  let tool = mcp_item_tool_lens_.get_or_json_decode_error(json, path)
-  let arguments = mcp_item_arguments_lens_.get_or_json_decode_error(json, path)
-  let result = mcp_item_result_lens_.get_or_json_decode_error(json, path)
-  let error = mcp_item_error_lens_.get_or_json_decode_error(json, path)
-  let status = mcp_item_status_lens_.get_or_json_decode_error(json, path)
-  { id, server, tool, arguments, result, error, status, }
-}
-
-///|
 pub extend McpToolCallItem with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for FileChangeItem with fn from_json(json, path) {
-  guard json is Json::Object(_) else {
-    raise @json.JsonDecodeError((path, "file_change must be an object"))
+  let wire : FileChangeWire_ = @json.from_json(json, path~)
+  {
+    id: wire.id,
+    changes: ReadOnlyArray::from_array(wire.changes),
+    status: wire.status,
   }
-  let id = item_id_lens_.get_or_json_decode_error(json, path)
-  let changes = file_change_changes_lens_.get_or_json_decode_error(json, path)
-  let status = file_change_status_lens_.get_or_json_decode_error(json, path)
-  { id, changes: ReadOnlyArray::from_array(changes), status, }
 }
 
 ///|
@@ -322,12 +233,8 @@ pub extend FileChangeItem with @json.FromJson::{from_json}
 
 ///|
 pub impl @json.FromJson for TodoListItem with fn from_json(json, path) {
-  guard json is Json::Object(_) else {
-    raise @json.JsonDecodeError((path, "todo_list must be an object"))
-  }
-  let id = item_id_lens_.get_or_json_decode_error(json, path)
-  let items = todo_list_items_lens_.get_or_json_decode_error(json, path)
-  { id, items: ReadOnlyArray::from_array(items), }
+  let wire : TodoListWire_ = @json.from_json(json, path~)
+  { id: wire.id, items: ReadOnlyArray::from_array(wire.items), }
 }
 
 ///|
@@ -338,8 +245,8 @@ pub impl @json.FromJson for ThreadItem with fn from_json(json, path) {
   guard json is Json::Object(_) else {
     raise @json.JsonDecodeError((path, "thread item must be an object"))
   }
-  let item_type = thread_item_type_lens_.get_or_json_decode_error(json, path)
-  match item_type {
+  let discriminator : ThreadDiscriminator_ = @json.from_json(json, path~)
+  match discriminator.tag {
     "agent_message" => AgentMessage(@json.from_json(json, path~))
     "reasoning" => Reasoning(@json.from_json(json, path~))
     "command_execution" => CommandExecution(@json.from_json(json, path~))
@@ -348,11 +255,8 @@ pub impl @json.FromJson for ThreadItem with fn from_json(json, path) {
     "web_search" => WebSearch(@json.from_json(json, path~))
     "todo_list" => TodoList(@json.from_json(json, path~))
     "error" => Error(@json.from_json(json, path~))
-    _ =>
-      raise thread_item_type_lens_.json_decode_error(
-        path,
-        "unsupported thread item type: \{item_type}",
-      )
+    tag =>
+      raise path.add_key("type").error("unsupported thread item type: \{tag}")
   }
 }
 

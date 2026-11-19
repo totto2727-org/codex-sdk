@@ -21,7 +21,7 @@ import {
   "moonbitlang/async@0.22.9",
   "totto2727/agent-core-sdk@0.1.3",
   "totto2727/copy@0.2.0",
-  "totto2727/lens@0.4.4",
+  "totto2727/serde@0.1.0",
   "totto2727/x@0.8.0",
 }
 

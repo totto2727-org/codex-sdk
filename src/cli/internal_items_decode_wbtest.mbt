@@ -255,3 +255,34 @@ test "MoonBit item decoder - rejects missing required fields" {
 test "MoonBit item decoder - rejects non-object items" {
   inspect(item_decode_error_("[]"), content="thread item must be an object")
 }
+
+///|
+test "MoonBit command decoder - allows a missing exit code and truncates JSON numbers" {
+  let json : Json = {
+    "id": "command-1",
+    "command": "pwd",
+    "aggregated_output": "",
+    "status": "completed",
+  }
+  let item : CommandExecutionItem = @json.from_json(json)
+  assert_eq(item.exit_code, None)
+  guard json is Json::Object(fields) else { fail("expected command object") }
+  fields["exit_code"] = ToJson::to_json(-1.75)
+  let item : CommandExecutionItem = @json.from_json(json)
+  assert_eq(item.exit_code, Some(-1))
+}
+
+///|
+test "MoonBit MCP result codec - keeps opaque content and omits absent metadata" {
+  let expected : Json = {
+    "content": [null, ["vendor-specific"], { "nested": true }],
+    "structured_content": null,
+  }
+  let result : McpToolCallResult = @json.from_json({
+    "content": [null, ["vendor-specific"], { "nested": true }],
+    "structured_content": null,
+    "_meta": null,
+  })
+  assert_eq(result.meta, None)
+  assert_eq(ToJson::to_json(result), expected)
+}
