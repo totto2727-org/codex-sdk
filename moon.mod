@@ -17,12 +17,12 @@ preferred_target = "wasm"
 supported_targets = "+wasm+native"
 
 import {
-  "moonbitlang/x@0.5.1",
-  "moonbitlang/async@0.22.9",
+  "moonbitlang/x@0.5.8",
+  "moonbitlang/async@0.22.10",
   "totto2727/agent-core-sdk@0.1.3",
   "totto2727/copy@0.2.0",
   "totto2727/lens@0.4.4",
-  "totto2727/x@0.8.0",
+  "totto2727/x@0.11.0",
 }
 
 source = "./src"
